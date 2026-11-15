@@ -1,0 +1,161 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+    --font-sans:
+        'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    --radius-lg: 0.625rem;
+    --radius-md: 0.5rem;
+    --radius-sm: 0.375rem;
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    --color-vuexy-primary: #7367f0;
+    --color-vuexy-success: #28c76f;
+    --color-vuexy-danger: #ff4c51;
+    --color-vuexy-warning: #ff9f43;
+    --color-vuexy-info: #00bad1;
+    --color-vuexy-dark: #2f3349;
+}
+
+:root {
+    --background: #f8f7fa;
+    --foreground: #444050;
+    --card: #ffffff;
+    --card-foreground: #444050;
+    --popover: #ffffff;
+    --popover-foreground: #444050;
+    --primary: #7367f0;
+    --primary-foreground: #ffffff;
+    --secondary: #f1f0f2;
+    --secondary-foreground: #5d596c;
+    --muted: #f4f5fb;
+    --muted-foreground: #82808b;
+    --accent: #f4f5fb;
+    --accent-foreground: #7367f0;
+    --destructive: #ff4c51;
+    --destructive-foreground: #ffffff;
+    --border: #dbdade;
+    --input: #dbdade;
+    --ring: rgba(115, 103, 240, 0.4);
+    --radius: 0.625rem;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #5d596c;
+    --sidebar-primary: #7367f0;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #f4f5fb;
+    --sidebar-accent-foreground: #7367f0;
+    --sidebar-border: #dbdade;
+    --sidebar-ring: rgba(115, 103, 240, 0.4);
+}
+
+.dark {
+    --background: #25293c;
+    --foreground: #cfcde4;
+    --card: #2f3349;
+    --card-foreground: #cfcde4;
+    --popover: #2f3349;
+    --popover-foreground: #cfcde4;
+    --primary: #7367f0;
+    --primary-foreground: #ffffff;
+    --secondary: #353952;
+    --secondary-foreground: #cfcde4;
+    --muted: #353952;
+    --muted-foreground: #86889f;
+    --accent: #353952;
+    --accent-foreground: #aba4f6;
+    --destructive: #ff4c51;
+    --destructive-foreground: #ffffff;
+    --border: #434968;
+    --input: #434968;
+    --ring: rgba(115, 103, 240, 0.4);
+    --sidebar: #2f3349;
+    --sidebar-foreground: #cfcde4;
+    --sidebar-primary: #7367f0;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #353952;
+    --sidebar-accent-foreground: #aba4f6;
+    --sidebar-border: #434968;
+    --sidebar-ring: rgba(115, 103, 240, 0.4);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-family: var(--font-sans);
+        letter-spacing: -0.01em;
+    }
+}
+
+/* Vuexy Sidebar Smooth Styling */
+[data-sidebar="content"] {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+[data-sidebar="content"]::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Force Crisp White Text & Icon for Active Sidebar Menu Items */
+[data-sidebar="menu-button"][data-active="true"] {
+    color: #ffffff !important;
+    background: linear-gradient(72.47deg, #7367f0 22.16%, rgba(115, 103, 240, 0.85) 76.47%) !important;
+    box-shadow: 0 2px 6px 0 rgba(115, 103, 240, 0.48) !important;
+}
+
+[data-sidebar="menu-button"][data-active="true"] * {
+    color: #ffffff !important;
+}
+
+[data-sidebar="menu-button"][data-active="true"] svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+}
