@@ -21,7 +21,7 @@ export function UserInfo({
                 {showAvatar ? (
                     <AvatarImage src={user.avatar} alt={user.name} />
                 ) : null}
-                <AvatarFallback className="rounded-lg bg-gradient-to-tr from-[#7367f0] to-[#9e95f5] text-white font-bold text-xs">
+                <AvatarFallback className="rounded-lg bg-gradient-to-tr from-primary to-[var(--primary-hover)] text-white font-bold text-xs">
                     {getInitials(user.name)}
                 </AvatarFallback>
             </Avatar>

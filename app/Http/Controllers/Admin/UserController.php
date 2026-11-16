@@ -15,12 +15,30 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $users = User::with(['role', 'roles'])
-            ->latest()
-            ->get()
-            ->map(fn ($user) => [
+        $query = User::with(['role', 'roles']);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('role') && $request->input('role') !== 'all') {
+            $roleSlug = $request->input('role');
+            $query->whereHas('role', function ($q) use ($roleSlug) {
+                $q->where('slug', $roleSlug);
+            });
+        }
+
+        $users = $query->latest()
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn ($user) => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
@@ -40,6 +58,7 @@ class UserController extends Controller
         return Inertia::render('admin/users/index', [
             'users' => $users,
             'roles' => $roles,
+            'filters' => $request->only(['search', 'role']),
         ]);
     }
 

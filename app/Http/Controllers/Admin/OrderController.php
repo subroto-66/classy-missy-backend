@@ -33,32 +33,35 @@ class OrderController extends Controller
             $query->where('payment_status', $request->input('payment_status'));
         }
 
-        $orders = $query->latest('placed_at')->get()->map(fn ($order) => [
-            'id' => $order->id,
-            'order_number' => $order->order_number,
-            'customer_name' => $order->customer_name,
-            'customer_email' => $order->customer_email,
-            'customer_phone' => $order->customer_phone,
-            'shipping_address' => $order->shipping_address,
-            'city' => $order->city,
-            'status' => $order->status,
-            'payment_status' => $order->payment_status,
-            'payment_method' => $order->payment_method,
-            'subtotal' => (float) $order->subtotal,
-            'shipping_fee' => (float) $order->shipping_fee,
-            'discount' => (float) $order->discount,
-            'total_amount' => (float) $order->total_amount,
-            'notes' => $order->notes,
-            'placed_at' => $order->placed_at ? $order->placed_at->format('M d, Y h:i A') : $order->created_at->format('M d, Y'),
-            'items' => $order->items->map(fn ($item) => [
-                'id' => $item->id,
-                'product_name' => $item->product_name,
-                'product_image' => $item->product_image,
-                'price' => (float) $item->price,
-                'quantity' => $item->quantity,
-                'total' => (float) $item->total,
-            ]),
-        ]);
+        $orders = $query->latest('placed_at')
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn ($order) => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'customer_name' => $order->customer_name,
+                'customer_email' => $order->customer_email,
+                'customer_phone' => $order->customer_phone,
+                'shipping_address' => $order->shipping_address,
+                'city' => $order->city,
+                'status' => $order->status,
+                'payment_status' => $order->payment_status,
+                'payment_method' => $order->payment_method,
+                'subtotal' => (float) $order->subtotal,
+                'shipping_fee' => (float) $order->shipping_fee,
+                'discount' => (float) $order->discount,
+                'total_amount' => (float) $order->total_amount,
+                'notes' => $order->notes,
+                'placed_at' => $order->placed_at ? $order->placed_at->format('M d, Y h:i A') : $order->created_at->format('M d, Y'),
+                'items' => $order->items->map(fn ($item) => [
+                    'id' => $item->id,
+                    'product_name' => $item->product_name,
+                    'product_image' => $item->product_image,
+                    'price' => (float) $item->price,
+                    'quantity' => $item->quantity,
+                    'total' => (float) $item->total,
+                ]),
+            ]);
 
         return Inertia::render('admin/orders/index', [
             'orders' => $orders,

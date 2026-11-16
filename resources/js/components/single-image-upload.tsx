@@ -109,7 +109,7 @@ export function SingleImageUpload({
             <div className="flex items-start justify-between gap-2">
                 <div>
                     <Label className="flex items-center gap-1.5 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-                        <ImageIcon className="size-4 text-[#7367F0]" />
+                        <ImageIcon className="size-4 text-primary" />
                         <span>{label}</span>
                     </Label>
                     {description && (
@@ -121,7 +121,7 @@ export function SingleImageUpload({
                     <button
                         type="button"
                         onClick={() => setUseUrlMode(!useUrlMode)}
-                        className="text-[11px] font-medium text-[#7367F0] hover:underline flex items-center gap-1 shrink-0"
+                        className="text-[11px] font-medium text-primary hover:underline flex items-center gap-1 shrink-0"
                     >
                         <LinkIcon className="size-3" />
                         <span>{useUrlMode ? 'Switch to File Upload' : 'Or paste URL'}</span>
@@ -168,7 +168,7 @@ export function SingleImageUpload({
                     {currentImageSrc ? (
                         /* Selected / Existing Image Card */
                         <div className="flex items-center gap-4 rounded-lg border border-[#dbdade] bg-white p-3 dark:border-[#434968] dark:bg-[#2f3349]">
-                            <div className="relative size-20 shrink-0 overflow-hidden rounded-lg border-2 border-[#7367F0] shadow-xs">
+                            <div className="relative size-20 shrink-0 overflow-hidden rounded-lg border-2 border-primary shadow-xs">
                                 <img
                                     src={currentImageSrc}
                                     alt="Uploaded Preview"
@@ -194,7 +194,7 @@ export function SingleImageUpload({
                                         size="sm"
                                         variant="outline"
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="h-7 px-2.5 text-xs text-[#7367F0] border-[#7367F0]/30 hover:bg-[#7367F0]/10"
+                                        className="h-7 px-2.5 text-xs text-primary border-primary/30 hover:bg-primary/10"
                                     >
                                         <Upload className="mr-1 size-3" />
                                         Change File
@@ -223,11 +223,11 @@ export function SingleImageUpload({
                             onDrop={handleDrop}
                             onClick={() => fileInputRef.current?.click()}
                             className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition-all ${isDragging
-                                    ? 'border-[#7367F0] bg-[#7367F0]/10 scale-[1.01]'
-                                    : 'border-[#dbdade] bg-white hover:border-[#7367F0] hover:bg-[#7367F0]/5 dark:border-[#434968] dark:bg-[#2f3349]'
+                                    ? 'border-primary bg-primary/10 scale-[1.01]'
+                                    : 'border-[#dbdade] bg-white hover:border-primary hover:bg-primary/5 dark:border-[#434968] dark:bg-[#2f3349]'
                                 }`}
                         >
-                            <div className="flex size-11 items-center justify-center rounded-full bg-[#7367F0]/10 text-[#7367F0]">
+                            <div className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
                                 <UploadCloud className="size-6" />
                             </div>
                             <div className="mt-2 text-xs font-semibold text-neutral-800 dark:text-neutral-200">

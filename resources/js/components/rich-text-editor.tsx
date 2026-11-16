@@ -56,8 +56,8 @@ function ToolbarButton({
             className={cn(
                 'flex size-7 items-center justify-center rounded text-xs transition-colors',
                 isActive
-                    ? '!bg-[#7367F0] !text-white shadow-xs'
-                    : 'text-neutral-600 hover:bg-[#7367F0]/10 hover:text-[#7367F0] dark:text-neutral-300 dark:hover:bg-[#353952] disabled:cursor-not-allowed disabled:opacity-40'
+                    ? '!bg-primary !text-white shadow-xs'
+                    : 'text-neutral-600 hover:bg-primary/10 hover:text-primary dark:text-neutral-300 dark:hover:bg-[#353952] disabled:cursor-not-allowed disabled:opacity-40'
             )}
         >
             {children}
@@ -82,7 +82,7 @@ export function RichTextEditor({
             Link.configure({
                 openOnClick: false,
                 HTMLAttributes: {
-                    class: 'text-[#7367F0] underline font-medium hover:opacity-80',
+                    class: 'text-primary underline font-medium hover:opacity-80',
                 },
             }),
             Placeholder.configure({
@@ -129,7 +129,7 @@ export function RichTextEditor({
     return (
         <div
             className={cn(
-                'overflow-hidden rounded-lg border border-[#dbdade] bg-white transition focus-within:border-[#7367F0] focus-within:ring-1 focus-within:ring-[#7367F0]/30 dark:border-[#434968] dark:bg-[#2f3349]',
+                'overflow-hidden rounded-lg border border-[#dbdade] bg-white transition focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/30 dark:border-[#434968] dark:bg-[#2f3349]',
                 className
             )}
         >
@@ -289,7 +289,7 @@ export function RichTextEditor({
             <div className="p-3 text-sm">
                 <EditorContent
                     editor={editor}
-                    className="min-h-[140px] max-h-[320px] overflow-y-auto text-[#444050] focus:outline-none dark:text-[#cfcde4] [&_.tiptap]:min-h-[120px] [&_.tiptap]:focus:outline-none [&_.tiptap_p.is-editor-empty:first-child]:before:pointer-events-none [&_.tiptap_p.is-editor-empty:first-child]:before:float-left [&_.tiptap_p.is-editor-empty:first-child]:before:h-0 [&_.tiptap_p.is-editor-empty:first-child]:before:text-[#a5a3ae] [&_.tiptap_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_blockquote]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-[#7367F0] [&_blockquote]:pl-3 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-neutral-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs dark:[&_code]:bg-neutral-800 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-[#444050] dark:[&_h2]:text-white [&_h3]:mb-1.5 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-[#444050] dark:[&_h3]:text-white [&_hr]:my-3 [&_hr]:border-[#dbdade] dark:[&_hr]:border-[#434968] [&_ol]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_pre]:my-2 [&_pre]:rounded-md [&_pre]:bg-neutral-900 [&_pre]:p-2.5 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:text-neutral-100 [&_ul]:mb-2 [&_ul]:list-disc [&_ul]:pl-5"
+                    className="min-h-[140px] max-h-[320px] overflow-y-auto text-[#444050] focus:outline-none dark:text-[#cfcde4] [&_.tiptap]:min-h-[120px] [&_.tiptap]:focus:outline-none [&_.tiptap_p.is-editor-empty:first-child]:before:pointer-events-none [&_.tiptap_p.is-editor-empty:first-child]:before:float-left [&_.tiptap_p.is-editor-empty:first-child]:before:h-0 [&_.tiptap_p.is-editor-empty:first-child]:before:text-[#a5a3ae] [&_.tiptap_p.is-editor-empty:first-child]:before:content-[attr(data-placeholder)] [&_blockquote]:my-2 [&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-3 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-neutral-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs dark:[&_code]:bg-neutral-800 [&_h2]:mb-2 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-[#444050] dark:[&_h2]:text-white [&_h3]:mb-1.5 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-[#444050] dark:[&_h3]:text-white [&_hr]:my-3 [&_hr]:border-[#dbdade] dark:[&_hr]:border-[#434968] [&_ol]:mb-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2 [&_pre]:my-2 [&_pre]:rounded-md [&_pre]:bg-neutral-900 [&_pre]:p-2.5 [&_pre]:font-mono [&_pre]:text-xs [&_pre]:text-neutral-100 [&_ul]:mb-2 [&_ul]:list-disc [&_ul]:pl-5"
                 />
             </div>
         </div>

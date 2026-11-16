@@ -68,7 +68,7 @@ export function AppSidebar() {
             href: '/admin/orders',
             icon: ShoppingBag,
             badge: '5',
-            badgeColor: 'bg-[#7367f0]/15 text-[#7367f0]',
+            badgeColor: 'bg-primary/15 text-primary',
         },
         {
             title: 'Customers',
@@ -97,10 +97,10 @@ export function AppSidebar() {
                     <button
                         type="button"
                         onClick={toggleSidebar}
-                        className="hidden group-data-[state=expanded]:flex size-5 rounded-full border-2 border-[#7367f0] items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95"
+                        className="hidden group-data-[state=expanded]:flex size-5 rounded-full border-2 border-primary items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95"
                         title="Toggle Sidebar"
                     >
-                        <div className="size-2 rounded-full bg-[#7367f0]" />
+                        <div className="size-2 rounded-full bg-primary" />
                     </button>
                 </div>
             </SidebarHeader>
@@ -126,8 +126,8 @@ export function AppSidebar() {
                                         tooltip={{ children: item.title }}
                                         className={`group/btn h-10 rounded-lg px-3.5 transition-all text-[13.5px] font-medium ${
                                             active
-                                                ? '!bg-gradient-to-r !from-[#7367F0] !to-[#8f85f3] !text-white !shadow-[0_2px_6px_0_rgba(115,103,240,0.48)] font-semibold'
-                                                : 'text-[#5d596c] hover:bg-[#7367f00d] hover:text-[#7367f0] dark:text-[#cfcde4] dark:hover:bg-[#353952]'
+                                                ? '!bg-gradient-to-r !from-primary !to-[var(--primary-hover)] !text-white !shadow-[0_2px_6px_0_rgba(var(--primary-rgb),0.48)] font-semibold'
+                                                : 'text-[#5d596c] hover:bg-primary/10 hover:text-primary dark:text-[#cfcde4] dark:hover:bg-[#353952]'
                                         }`}
                                     >
                                         <Link
@@ -142,14 +142,14 @@ export function AppSidebar() {
                                                     className={`size-[18px] shrink-0 transition-colors ${
                                                         active
                                                             ? '!text-white'
-                                                            : 'text-[#82808b] group-hover/btn:text-[#7367f0] dark:text-[#a5a3ae] dark:group-hover/btn:text-[#7367f0]'
+                                                            : 'text-[#82808b] group-hover/btn:text-primary dark:text-[#a5a3ae] dark:group-hover/btn:text-primary'
                                                     }`}
                                                 />
                                                 <span
                                                     className={`truncate whitespace-nowrap transition-colors ${
                                                         active
                                                             ? '!text-white font-semibold'
-                                                            : 'text-[#5d596c] group-hover/btn:text-[#7367f0] dark:text-[#cfcde4] dark:group-hover/btn:text-[#7367f0]'
+                                                            : 'text-[#5d596c] group-hover/btn:text-primary dark:text-[#cfcde4] dark:group-hover/btn:text-primary'
                                                     }`}
                                                 >
                                                     {item.title}
@@ -160,7 +160,7 @@ export function AppSidebar() {
                                                     className={`shrink-0 text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap transition-colors ${
                                                         active
                                                             ? 'bg-white/25 !text-white'
-                                                            : item.badgeColor || 'bg-[#7367f0] text-white'
+                                                            : item.badgeColor || 'bg-primary text-white'
                                                     }`}
                                                 >
                                                     {item.badge}

@@ -41,7 +41,7 @@ class ProductController extends Controller
             $query->where('stock_quantity', '<=', 0);
         }
 
-        $products = $query->latest()->get();
+        $products = $query->latest()->paginate(10)->withQueryString();
         $categories = Category::select(['id', 'name'])->get();
         $brands = Brand::select(['id', 'name'])->get();
 

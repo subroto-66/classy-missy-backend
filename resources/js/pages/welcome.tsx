@@ -41,7 +41,7 @@ export default function Welcome() {
                             </Button>
 
                             {auth?.user ? (
-                                <Button size="sm" asChild className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white">
+                                <Button size="sm" asChild className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white">
                                     <Link href={dashboardUrl}>Enter Admin Dashboard</Link>
                                 </Button>
                             ) : (
@@ -49,7 +49,7 @@ export default function Welcome() {
                                     <Button variant="outline" size="sm" asChild>
                                         <Link href={login()}>Log in</Link>
                                     </Button>
-                                    <Button size="sm" asChild className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white">
+                                    <Button size="sm" asChild className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white">
                                         <Link href={register()}>Register</Link>
                                     </Button>
                                 </div>
@@ -62,7 +62,7 @@ export default function Welcome() {
                 <main className="flex-1 flex items-center justify-center py-12 px-6">
                     <div className="w-full max-w-4xl space-y-10">
                         <div className="text-center space-y-4">
-                            <div className="inline-flex items-center gap-2 rounded-full border border-[#7367f0]/20 bg-[#7367f0]/10 px-3 py-1 text-xs font-semibold text-[#7367F0] dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
                                 <Sparkles className="size-3.5" /> Luxury Skincare & Beauty E-Commerce
                             </div>
                             <h1 className="text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl dark:text-neutral-100">
@@ -74,11 +74,11 @@ export default function Welcome() {
 
                             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
                                 {auth?.user ? (
-                                    <Button size="lg" asChild className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white px-8">
+                                    <Button size="lg" asChild className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white px-8">
                                         <Link href={dashboardUrl}>Launch Admin Dashboard</Link>
                                     </Button>
                                 ) : (
-                                    <Button size="lg" asChild className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white px-8">
+                                    <Button size="lg" asChild className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white px-8">
                                         <Link href={login()}>Sign In to Dashboard</Link>
                                     </Button>
                                 )}
@@ -102,7 +102,7 @@ export default function Welcome() {
                             <CardContent className="p-6 space-y-4">
                                 <div className="flex items-center justify-between border-b border-neutral-100 pb-3 dark:border-neutral-800">
                                     <div className="flex items-center gap-2 font-semibold text-sm text-neutral-900 dark:text-neutral-100">
-                                        <ShieldCheck className="size-4 text-[#7367F0]" />
+                                        <ShieldCheck className="size-4 text-primary" />
                                         <span>Pre-seeded Demo Accounts & Role Hierarchy</span>
                                     </div>
                                     <span className="text-xs text-neutral-400">Default Password: <strong>password</strong></span>
@@ -111,7 +111,7 @@ export default function Welcome() {
                                 <div className="grid gap-3 sm:grid-cols-3">
                                     <div className="rounded-lg border border-neutral-200 p-3 space-y-1.5 dark:border-neutral-800">
                                         <div className="flex items-center justify-between">
-                                            <Badge className="bg-[#7367f0]/10 text-[#7367F0] border-[#7367f0]/20 text-[10px]">Super Admin</Badge>
+                                            <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">Super Admin</Badge>
                                             <Lock className="size-3 text-neutral-400" />
                                         </div>
                                         <div className="text-xs font-semibold text-neutral-900 dark:text-neutral-100">admin@classymissy.com</div>

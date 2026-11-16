@@ -13,12 +13,24 @@ use Inertia\Response;
 
 class BrandController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $brands = Brand::withCount('products')->latest()->get();
+        $query = Brand::withCount('products');
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('website', 'like', "%{$search}%");
+            });
+        }
+
+        $brands = $query->latest()->paginate(10)->withQueryString();
 
         return Inertia::render('admin/brands/index', [
             'brands' => $brands,
+            'filters' => $request->only(['search']),
         ]);
     }
 

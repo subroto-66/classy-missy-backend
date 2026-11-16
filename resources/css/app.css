@@ -52,7 +52,7 @@
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    --color-vuexy-primary: #7367f0;
+    --color-vuexy-primary: var(--primary);
     --color-vuexy-success: #28c76f;
     --color-vuexy-danger: #ff4c51;
     --color-vuexy-warning: #ff9f43;
@@ -67,28 +67,30 @@
     --card-foreground: #444050;
     --popover: #ffffff;
     --popover-foreground: #444050;
-    --primary: #7367f0;
+    --primary: #ff7900;
+    --primary-hover: #e66d00;
+    --primary-rgb: 255, 121, 0;
     --primary-foreground: #ffffff;
     --secondary: #f1f0f2;
     --secondary-foreground: #5d596c;
     --muted: #f4f5fb;
     --muted-foreground: #82808b;
     --accent: #f4f5fb;
-    --accent-foreground: #7367f0;
+    --accent-foreground: var(--primary);
     --destructive: #ff4c51;
     --destructive-foreground: #ffffff;
     --border: #dbdade;
     --input: #dbdade;
-    --ring: rgba(115, 103, 240, 0.4);
+    --ring: rgba(255, 121, 0, 0.4);
     --radius: 0.625rem;
     --sidebar: #ffffff;
     --sidebar-foreground: #5d596c;
-    --sidebar-primary: #7367f0;
+    --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: #ffffff;
     --sidebar-accent: #f4f5fb;
-    --sidebar-accent-foreground: #7367f0;
+    --sidebar-accent-foreground: var(--primary);
     --sidebar-border: #dbdade;
-    --sidebar-ring: rgba(115, 103, 240, 0.4);
+    --sidebar-ring: rgba(255, 121, 0, 0.4);
 }
 
 .dark {
@@ -98,27 +100,29 @@
     --card-foreground: #cfcde4;
     --popover: #2f3349;
     --popover-foreground: #cfcde4;
-    --primary: #7367f0;
+    --primary: #ff7900;
+    --primary-hover: #e66d00;
+    --primary-rgb: 255, 121, 0;
     --primary-foreground: #ffffff;
     --secondary: #353952;
     --secondary-foreground: #cfcde4;
     --muted: #353952;
     --muted-foreground: #86889f;
     --accent: #353952;
-    --accent-foreground: #aba4f6;
+    --accent-foreground: var(--primary);
     --destructive: #ff4c51;
     --destructive-foreground: #ffffff;
     --border: #434968;
     --input: #434968;
-    --ring: rgba(115, 103, 240, 0.4);
+    --ring: rgba(255, 121, 0, 0.4);
     --sidebar: #2f3349;
     --sidebar-foreground: #cfcde4;
-    --sidebar-primary: #7367f0;
+    --sidebar-primary: var(--primary);
     --sidebar-primary-foreground: #ffffff;
     --sidebar-accent: #353952;
-    --sidebar-accent-foreground: #aba4f6;
+    --sidebar-accent-foreground: var(--primary);
     --sidebar-border: #434968;
-    --sidebar-ring: rgba(115, 103, 240, 0.4);
+    --sidebar-ring: rgba(255, 121, 0, 0.4);
 }
 
 @layer base {
@@ -147,8 +151,8 @@
 /* Force Crisp White Text & Icon for Active Sidebar Menu Items */
 [data-sidebar="menu-button"][data-active="true"] {
     color: #ffffff !important;
-    background: linear-gradient(72.47deg, #7367f0 22.16%, rgba(115, 103, 240, 0.85) 76.47%) !important;
-    box-shadow: 0 2px 6px 0 rgba(115, 103, 240, 0.48) !important;
+    background: linear-gradient(72.47deg, var(--primary) 22.16%, rgba(var(--primary-rgb), 0.85) 76.47%) !important;
+    box-shadow: 0 2px 6px 0 rgba(var(--primary-rgb), 0.48) !important;
 }
 
 [data-sidebar="menu-button"][data-active="true"] * {

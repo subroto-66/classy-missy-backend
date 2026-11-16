@@ -17,6 +17,46 @@
                     }
                 }
             })();
+
+            // Inline script to apply stored or default primary brand color (#FF7900)
+            (function() {
+                const defaultColor = '#FF7900';
+                let color = defaultColor;
+                try {
+                    const stored = localStorage.getItem('app_primary_color');
+                    if (stored && /^#([0-9a-fA-F]{3}){1,2}$/.test(stored)) {
+                        color = stored;
+                    }
+                } catch (e) {}
+
+                function hexToRgb(h) {
+                    let c = h.replace('#', '');
+                    if (c.length === 3) c = c.split('').map(function(x) { return x + x; }).join('');
+                    var n = parseInt(c, 16);
+                    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+                }
+
+                function adjust(h, pct) {
+                    var rgb = hexToRgb(h);
+                    var adj = function(v) { return Math.max(0, Math.min(255, Math.round(v + (pct / 100) * 255))); };
+                    var toHex = function(v) { return v.toString(16).padStart(2, '0'); };
+                    return '#' + toHex(adj(rgb.r)) + toHex(adj(rgb.g)) + toHex(adj(rgb.b));
+                }
+
+                var rgb = hexToRgb(color);
+                var hover = adjust(color, -14);
+                var light = adjust(color, 20);
+
+                var root = document.documentElement;
+                root.style.setProperty('--primary', color);
+                root.style.setProperty('--color-primary', color);
+                root.style.setProperty('--color-vuexy-primary', color);
+                root.style.setProperty('--primary-hover', hover);
+                root.style.setProperty('--primary-light', light);
+                root.style.setProperty('--primary-rgb', rgb.r + ', ' + rgb.g + ', ' + rgb.b);
+                root.style.setProperty('--ring', 'rgba(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', 0.4)');
+                root.style.setProperty('--sidebar-ring', 'rgba(' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + ', 0.4)');
+            })();
         </script>
 
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}

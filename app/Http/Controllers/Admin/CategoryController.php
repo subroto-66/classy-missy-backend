@@ -13,12 +13,23 @@ use Inertia\Response;
 
 class CategoryController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $categories = Category::withCount('products')->orderBy('order')->get();
+        $query = Category::withCount('products');
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $categories = $query->orderBy('order')->paginate(10)->withQueryString();
 
         return Inertia::render('admin/categories/index', [
             'categories' => $categories,
+            'filters' => $request->only(['search']),
         ]);
     }
 

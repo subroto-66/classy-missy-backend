@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { Package, Pencil, Plus, Tags, Trash2 } from 'lucide-react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Tags } from 'lucide-react';
+import { CatalogCard } from '@/components/catalog-card';
+import { CatalogList } from '@/components/catalog-list';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -15,15 +16,30 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SingleImageUpload } from '@/components/single-image-upload';
-import type { Category } from '@/types';
+import type { Category, PaginatedData } from '@/types';
 
 type Props = {
-    categories: Category[];
+    categories: PaginatedData<Category> | Category[];
+    filters?: {
+        search?: string;
+    };
 };
 
-export default function CategoriesIndex({ categories = [] }: Props) {
+export default function CategoriesIndex({ categories, filters = {} }: Props) {
     const page = usePage();
     const prefix = '';
+
+    const categoryList = Array.isArray(categories) ? categories : (categories?.data || []);
+    const totalCategories = Array.isArray(categories) ? categories.length : (categories?.total ?? 0);
+    const [search, setSearch] = useState(filters.search || '');
+
+    const handleSearch = (val: string) => {
+        setSearch(val);
+        router.get(`${prefix}/admin/categories`, { search: val }, {
+            preserveState: true,
+            replace: true,
+        });
+    };
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -41,7 +57,7 @@ export default function CategoriesIndex({ categories = [] }: Props) {
         image: '',
         image_file: null,
         description: '',
-        order: categories.length + 1,
+        order: totalCategories + 1,
         is_active: true,
     });
 
@@ -117,98 +133,49 @@ export default function CategoriesIndex({ categories = [] }: Props) {
             <Head title="Categories Management" />
 
             <div className="flex flex-1 flex-col gap-6 p-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-                                Categories
-                            </h1>
-                            <Badge variant="outline" className="text-xs">
-                                {categories.length} Sections
-                            </Badge>
-                        </div>
-                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Organize beauty formulas by collection (Skincare, Makeup, Hair care, Fragrance).
-                        </p>
-                    </div>
-
-                    <Button
-                        onClick={() => setIsCreateOpen(true)}
-                        className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white flex items-center gap-1.5"
-                    >
-                        <Plus className="size-4" />
-                        <span>Add Category</span>
-                    </Button>
-                </div>
-
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {categories.map((c) => (
-                        <Card key={c.id} className="overflow-hidden border-neutral-200 shadow-sm dark:border-neutral-800">
-                            <div className="relative h-36 w-full bg-neutral-100 dark:bg-neutral-800">
-                                {c.image ? (
-                                    <img src={c.image} alt={c.name} className="size-full object-cover" />
-                                ) : (
-                                    <div className="flex size-full items-center justify-center text-neutral-400">
-                                        <Tags className="size-8" />
-                                    </div>
-                                )}
-                                <div className="absolute top-2 right-2">
-                                    {c.is_active ? (
-                                        <Badge className="bg-emerald-500/90 text-white text-[10px]">Active</Badge>
-                                    ) : (
-                                        <Badge variant="outline" className="bg-black/50 text-white text-[10px]">Disabled</Badge>
-                                    )}
-                                </div>
-                            </div>
-
-                            <CardContent className="p-4 space-y-3">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
-                                            {c.name}
-                                        </h3>
-                                        <p className="text-xs text-neutral-500 line-clamp-1">
-                                            {c.description || 'No description'}
-                                        </p>
-                                    </div>
-                                    <Badge variant="secondary" className="text-xs">
-                                        {c.products_count ?? 0} Products
-                                    </Badge>
-                                </div>
-
-                                <div className="flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-neutral-800">
-                                    <span className="text-[11px] text-neutral-400">Display Order #{c.order}</span>
-                                    <div className="flex items-center gap-1.5">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handleOpenEdit(c)}
-                                            className="h-7 text-xs px-2 flex items-center gap-1"
-                                        >
-                                            <Pencil className="size-3" />
-                                            <span>Edit</span>
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => setDeletingCategory(c)}
-                                            className="h-7 text-xs px-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40"
-                                        >
-                                            <Trash2 className="size-3" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+                <CatalogList
+                    title="Categories"
+                    totalCount={totalCategories}
+                    countLabel="Sections"
+                    addButtonLabel="Add Category"
+                    onAdd={() => setIsCreateOpen(true)}
+                    search={search}
+                    onSearchChange={handleSearch}
+                    searchPlaceholder="Search categories by name, description..."
+                    items={categoryList}
+                    paginationData={categories}
+                    gridClassName="grid gap-5 sm:grid-cols-2 lg:grid-cols-5"
+                    emptyMessage="No categories found matching your search. Click &quot;Add Category&quot; to create one."
+                    renderCard={(c) => (
+                        <CatalogCard
+                            key={c.id}
+                            title={c.name}
+                            description={c.description || 'No description'}
+                            image={c.image}
+                            imageHeight="h-32"
+                            fallbackIcon={<Tags className="size-8" />}
+                            status={c.is_active}
+                            meta={
+                                <Badge variant="secondary" className="text-xs">
+                                    {c.products_count ?? 0} Products
+                                </Badge>
+                            }
+                            footerLeft={
+                                <span className="text-[11px] text-neutral-400">
+                                    Display Order #{c.order}
+                                </span>
+                            }
+                            onEdit={() => handleOpenEdit(c)}
+                            onDelete={() => setDeletingCategory(c)}
+                        />
+                    )}
+                />
 
                 {/* Add Category Dialog */}
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogContent className="max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Add Category</DialogTitle>
-                            <DialogDescription>Create a collection to group related beauty products.</DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleCreateSubmit} className="space-y-4 pt-2">
                             <div className="space-y-1.5">
@@ -258,7 +225,7 @@ export default function CategoriesIndex({ categories = [] }: Props) {
                                 <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
                                     Cancel
                                 </Button>
-                                <Button type="submit" disabled={createForm.processing} className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white">
+                                <Button type="submit" disabled={createForm.processing} className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white">
                                     {createForm.processing ? 'Creating...' : 'Create Category'}
                                 </Button>
                             </DialogFooter>
@@ -270,7 +237,7 @@ export default function CategoriesIndex({ categories = [] }: Props) {
                 <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
                     <DialogContent className="max-w-lg">
                         <DialogHeader>
-                            <DialogTitle>Edit Category: {editingCategory?.name}</DialogTitle>
+                            <DialogTitle>Edit Category</DialogTitle>
                         </DialogHeader>
                         <form onSubmit={handleEditSubmit} className="space-y-4 pt-2">
                             <div className="space-y-1.5">
@@ -317,7 +284,7 @@ export default function CategoriesIndex({ categories = [] }: Props) {
                                     type="checkbox"
                                     checked={editForm.data.is_active}
                                     onChange={(e) => editForm.setData('is_active', e.target.checked)}
-                                    className="rounded border-neutral-300 text-[#7367F0] focus:ring-[#7367f0]"
+                                    className="rounded border-neutral-300 text-primary focus:ring-primary"
                                 />
                                 <Label htmlFor="edit-c-active" className="text-xs cursor-pointer">
                                     Active Category
@@ -328,7 +295,7 @@ export default function CategoriesIndex({ categories = [] }: Props) {
                                 <Button type="button" variant="outline" onClick={() => setEditingCategory(null)}>
                                     Cancel
                                 </Button>
-                                <Button type="submit" disabled={editForm.processing} className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white">
+                                <Button type="submit" disabled={editForm.processing} className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white">
                                     {editForm.processing ? 'Saving...' : 'Save Changes'}
                                 </Button>
                             </DialogFooter>

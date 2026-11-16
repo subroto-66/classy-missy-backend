@@ -108,9 +108,9 @@ export function MultipleImageUpload({
             <div className="flex items-start justify-between gap-2">
                 <div>
                     <Label className="flex items-center gap-1.5 text-sm font-semibold text-neutral-800 dark:text-neutral-200">
-                        <Images className="size-4 text-[#7367F0]" />
+                        <Images className="size-4 text-primary" />
                         <span>{label}</span>
-                        <span className="ml-1 rounded-full bg-[#7367F0]/10 px-2 py-0.5 text-[11px] font-semibold text-[#7367F0]">
+                        <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary">
                             {totalCount} {totalCount === 1 ? 'photo' : 'photos'}
                         </span>
                     </Label>
@@ -137,7 +137,7 @@ export function MultipleImageUpload({
                         size="sm"
                         variant="outline"
                         onClick={() => fileInputRef.current?.click()}
-                        className="h-7 gap-1.5 text-xs text-[#7367F0] border-[#7367F0]/30 hover:bg-[#7367F0]/10 hover:text-[#7367F0]"
+                        className="h-7 gap-1.5 text-xs text-primary border-primary/30 hover:bg-primary/10 hover:text-primary"
                     >
                         <Plus className="size-3.5" />
                         <span>Add Photos</span>
@@ -165,12 +165,12 @@ export function MultipleImageUpload({
                 onClick={() => fileInputRef.current?.click()}
                 className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed py-4 px-3 text-center transition-all ${
                     isDragging
-                        ? 'border-[#7367F0] bg-[#7367F0]/10 scale-[1.005]'
-                        : 'border-[#dbdade]/80 bg-white hover:border-[#7367F0] hover:bg-[#7367F0]/5 dark:border-[#434968] dark:bg-[#2f3349]'
+                        ? 'border-primary bg-primary/10 scale-[1.005]'
+                        : 'border-[#dbdade]/80 bg-white hover:border-primary hover:bg-primary/5 dark:border-[#434968] dark:bg-[#2f3349]'
                 }`}
             >
                 <div className="flex items-center gap-2 text-xs font-medium text-neutral-700 dark:text-neutral-200">
-                    <Upload className="size-4 text-[#7367F0]" />
+                    <Upload className="size-4 text-primary" />
                     <span>Choose multiple image files or drag & drop</span>
                 </div>
                 <p className="mt-0.5 text-[11px] text-[#a5a3ae]">

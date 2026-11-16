@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { Globe, Pencil, Plus, Sparkles, Trash2 } from 'lucide-react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Sparkles } from 'lucide-react';
+import { CatalogCard } from '@/components/catalog-card';
+import { CatalogList } from '@/components/catalog-list';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -15,15 +16,30 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { SingleImageUpload } from '@/components/single-image-upload';
-import type { Brand } from '@/types';
+import type { Brand, PaginatedData } from '@/types';
 
 type Props = {
-    brands: Brand[];
+    brands: PaginatedData<Brand> | Brand[];
+    filters?: {
+        search?: string;
+    };
 };
 
-export default function BrandsIndex({ brands = [] }: Props) {
+export default function BrandsIndex({ brands, filters = {} }: Props) {
     const page = usePage();
     const prefix = '';
+
+    const brandList = Array.isArray(brands) ? brands : (brands?.data || []);
+    const totalBrands = Array.isArray(brands) ? brands.length : (brands?.total ?? 0);
+    const [search, setSearch] = useState(filters.search || '');
+
+    const handleSearch = (val: string) => {
+        setSearch(val);
+        router.get(`${prefix}/admin/brands`, { search: val }, {
+            preserveState: true,
+            replace: true,
+        });
+    };
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
@@ -117,91 +133,50 @@ export default function BrandsIndex({ brands = [] }: Props) {
             <Head title="Brands Management" />
 
             <div className="flex flex-1 flex-col gap-6 p-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-                                Partner Brands
-                            </h1>
-                            <Badge variant="outline" className="text-xs">
-                                {brands.length} Brands
-                            </Badge>
-                        </div>
-                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Partner cosmetic & dermatological labels featured on Classy Missy.
-                        </p>
-                    </div>
-
-                    <Button
-                        onClick={() => setIsCreateOpen(true)}
-                        className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white flex items-center gap-1.5"
-                    >
-                        <Plus className="size-4" />
-                        <span>Add Brand</span>
-                    </Button>
-                </div>
-
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                    {brands.map((b) => (
-                        <Card key={b.id} className="border-neutral-200 shadow-sm dark:border-neutral-800">
-                            <CardContent className="p-5 space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="size-12 shrink-0 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 flex items-center justify-center p-1 dark:border-neutral-800 dark:bg-neutral-900">
-                                        {b.logo ? (
-                                            <img src={b.logo} alt={b.name} className="size-full object-cover rounded-lg" />
-                                        ) : (
-                                            <Sparkles className="size-5 text-neutral-400" />
-                                        )}
-                                    </div>
-                                    <div className="min-w-0">
-                                        <h3 className="font-semibold text-neutral-900 truncate dark:text-neutral-100">
-                                            {b.name}
-                                        </h3>
-                                        <span className="text-xs text-neutral-400">
-                                            {b.products_count ?? 0} Products
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <p className="text-xs text-neutral-500 line-clamp-2 min-h-[32px]">
-                                    {b.description || 'Authentic skincare and cosmetic formulas.'}
-                                </p>
-
-                                <div className="flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-neutral-800">
-                                    <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] dark:bg-emerald-950/40 dark:text-emerald-300">
-                                        Active
-                                    </Badge>
-                                    <div className="flex items-center gap-1.5">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handleOpenEdit(b)}
-                                            className="h-7 text-xs px-2 flex items-center gap-1"
-                                        >
-                                            <Pencil className="size-3" />
-                                            <span>Edit</span>
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => setDeletingBrand(b)}
-                                            className="h-7 text-xs px-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40"
-                                        >
-                                            <Trash2 className="size-3" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+                <CatalogList
+                    title="Partner Brands"
+                    totalCount={totalBrands}
+                    countLabel="Brands"
+                    addButtonLabel="Add Brand"
+                    onAdd={() => setIsCreateOpen(true)}
+                    search={search}
+                    onSearchChange={handleSearch}
+                    searchPlaceholder="Search brands by name, description, website..."
+                    items={brandList}
+                    paginationData={brands}
+                    gridClassName="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+                    emptyMessage="No brands found matching your search. Click &quot;Add Brand&quot; to create one."
+                    renderCard={(b) => (
+                        <CatalogCard
+                            key={b.id}
+                            title={b.name}
+                            description={b.description || 'Authentic skincare and cosmetic formulas.'}
+                            image={b.logo}
+                            fallbackIcon={<Sparkles className="size-8" />}
+                            status={b.is_active}
+                            meta={
+                                <Badge variant="secondary" className="text-xs">
+                                    {b.products_count ?? 0} Products
+                                </Badge>
+                            }
+                            footerLeft={
+                                b.website ? (
+                                    <span className="text-[11px] text-neutral-400 truncate max-w-[130px] block">
+                                        {b.website.replace(/^https?:\/\//, '')}
+                                    </span>
+                                ) : null
+                            }
+                            onEdit={() => handleOpenEdit(b)}
+                            onDelete={() => setDeletingBrand(b)}
+                        />
+                    )}
+                />
 
                 {/* Add Brand Modal */}
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogContent className="max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Add Brand</DialogTitle>
-                            <DialogDescription>Add a beauty or skincare brand to your catalog.</DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleCreateSubmit} className="space-y-4 pt-2">
                             <div className="space-y-1.5">
@@ -251,7 +226,7 @@ export default function BrandsIndex({ brands = [] }: Props) {
                                 <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
                                     Cancel
                                 </Button>
-                                <Button type="submit" disabled={createForm.processing} className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white">
+                                <Button type="submit" disabled={createForm.processing} className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white">
                                     {createForm.processing ? 'Creating...' : 'Create Brand'}
                                 </Button>
                             </DialogFooter>
@@ -307,7 +282,7 @@ export default function BrandsIndex({ brands = [] }: Props) {
                                 <Button type="button" variant="outline" onClick={() => setEditingBrand(null)}>
                                     Cancel
                                 </Button>
-                                <Button type="submit" disabled={editForm.processing} className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white">
+                                <Button type="submit" disabled={editForm.processing} className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white">
                                     {editForm.processing ? 'Saving...' : 'Save Changes'}
                                 </Button>
                             </DialogFooter>

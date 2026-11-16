@@ -14,14 +14,26 @@ use Inertia\Response;
 
 class CampaignController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
-        $campaigns = Campaign::latest()->get();
+        $query = Campaign::query();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('eyebrow', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $campaigns = $query->latest()->paginate(10)->withQueryString();
         $products = Product::select(['id', 'slug', 'name'])->get();
 
         return Inertia::render('admin/campaigns/index', [
             'campaigns' => $campaigns,
             'products' => $products,
+            'filters' => $request->only(['search']),
         ]);
     }
 

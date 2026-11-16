@@ -9,7 +9,7 @@ export default function AppLogo() {
                     viewBox="0 0 32 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="text-[#7367F0]"
+                    className="text-primary"
                 >
                     <path
                         fillRule="evenodd"
@@ -28,7 +28,7 @@ export default function AppLogo() {
                         fillRule="evenodd"
                         clipRule="evenodd"
                         d="M31.9983 0V7.47707C31.9983 7.47707 32.1453 9.83135 29.839 11.8241L17.0642 23.9961L10.4221 23.9107L11.4874 10.7809L14.0064 7.825L21.9222 0H31.9983Z"
-                        fill="#7367F0"
+                        fill="currentColor"
                     />
                     <path
                         opacity="0.4"
@@ -43,7 +43,7 @@ export default function AppLogo() {
                 <span className="text-[1.2rem] font-bold tracking-tight text-[#444050] dark:text-[#cfcde4] leading-tight font-sans">
                     Classy Missy
                 </span>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-[#7367F0]">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">
                     Vuexy Admin
                 </span>
             </div>

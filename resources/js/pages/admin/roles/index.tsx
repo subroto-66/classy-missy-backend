@@ -155,18 +155,15 @@ export default function RolesIndex({ roles = [], groupedPermissions = {} }: Prop
                             <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
                                 Roles & Access Control
                             </h1>
-                            <Badge className="bg-[#7367f0]/10 text-[#7367f0] border-[#7367f0]/20 dark:bg-rose-950/40 dark:text-rose-300">
+                            <Badge className="bg-primary/10 text-primary border-primary/20 dark:bg-rose-950/40 dark:text-rose-300">
                                 RBAC System
                             </Badge>
                         </div>
-                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Configure security roles, assign granular permissions, and govern staff operations.
-                        </p>
                     </div>
 
                     <Button
                         onClick={() => setIsCreateOpen(true)}
-                        className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white flex items-center gap-1.5"
+                        className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white flex items-center gap-1.5"
                     >
                         <Plus className="size-4" />
                         <span>Create New Role</span>
@@ -197,7 +194,7 @@ export default function RolesIndex({ roles = [], groupedPermissions = {} }: Prop
                                             {role.description || 'No description provided.'}
                                         </CardDescription>
                                     </div>
-                                    <div className="rounded-lg bg-rose-50 p-2 text-[#7367F0] dark:bg-rose-950 dark:text-rose-400">
+                                    <div className="rounded-lg bg-primary/10 p-2 text-primary dark:bg-rose-950 dark:text-rose-400">
                                         <ShieldCheck className="size-5" />
                                     </div>
                                 </div>
@@ -337,7 +334,7 @@ export default function RolesIndex({ roles = [], groupedPermissions = {} }: Prop
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => toggleGroupInCreate(perms)}
-                                                    className="h-6 text-[11px] text-[#7367F0] hover:text-rose-700"
+                                                    className="h-6 text-[11px] text-primary hover:opacity-80"
                                                 >
                                                     {allSelected ? 'Deselect All' : 'Select All'}
                                                 </Button>
@@ -349,17 +346,16 @@ export default function RolesIndex({ roles = [], groupedPermissions = {} }: Prop
                                                     return (
                                                         <label
                                                             key={p.id}
-                                                            className={`flex items-start gap-2.5 rounded-md border p-2 text-xs cursor-pointer transition-colors ${
-                                                                isChecked
-                                                                    ? 'border-[#7367f0] bg-[#7367f0]/10 dark:border-rose-900 dark:bg-rose-950/20'
-                                                                    : 'border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-800/40'
-                                                            }`}
+                                                            className={`flex items-start gap-2.5 rounded-md border p-2 text-xs cursor-pointer transition-colors ${isChecked
+                                                                ? 'border-primary bg-primary/10 dark:border-rose-900 dark:bg-rose-950/20'
+                                                                : 'border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-800/40'
+                                                                }`}
                                                         >
                                                             <input
                                                                 type="checkbox"
                                                                 checked={isChecked}
                                                                 onChange={() => togglePermissionInCreate(p.id)}
-                                                                className="mt-0.5 rounded border-neutral-300 text-[#7367F0] focus:ring-rose-500"
+                                                                className="mt-0.5 rounded border-neutral-300 text-primary focus:ring-primary"
                                                             />
                                                             <div className="space-y-0.5">
                                                                 <div className="font-medium text-neutral-900 dark:text-neutral-100">
@@ -391,7 +387,7 @@ export default function RolesIndex({ roles = [], groupedPermissions = {} }: Prop
                                 <Button
                                     type="submit"
                                     disabled={createForm.processing}
-                                    className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white"
+                                    className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white"
                                 >
                                     {createForm.processing ? 'Creating...' : 'Create Role'}
                                 </Button>
@@ -457,7 +453,7 @@ export default function RolesIndex({ roles = [], groupedPermissions = {} }: Prop
                                                     variant="ghost"
                                                     size="sm"
                                                     onClick={() => toggleGroupInEdit(perms)}
-                                                    className="h-6 text-[11px] text-[#7367F0] hover:text-rose-700"
+                                                    className="h-6 text-[11px] text-primary hover:opacity-80"
                                                 >
                                                     {allSelected ? 'Deselect All' : 'Select All'}
                                                 </Button>
@@ -469,17 +465,16 @@ export default function RolesIndex({ roles = [], groupedPermissions = {} }: Prop
                                                     return (
                                                         <label
                                                             key={p.id}
-                                                            className={`flex items-start gap-2.5 rounded-md border p-2 text-xs cursor-pointer transition-colors ${
-                                                                isChecked
-                                                                    ? 'border-[#7367f0] bg-[#7367f0]/10 dark:border-rose-900 dark:bg-rose-950/20'
-                                                                    : 'border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-800/40'
-                                                            }`}
+                                                            className={`flex items-start gap-2.5 rounded-md border p-2 text-xs cursor-pointer transition-colors ${isChecked
+                                                                ? 'border-primary bg-primary/10 dark:border-rose-900 dark:bg-rose-950/20'
+                                                                : 'border-neutral-200 hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-800/40'
+                                                                }`}
                                                         >
                                                             <input
                                                                 type="checkbox"
                                                                 checked={isChecked}
                                                                 onChange={() => togglePermissionInEdit(p.id)}
-                                                                className="mt-0.5 rounded border-neutral-300 text-[#7367F0] focus:ring-rose-500"
+                                                                className="mt-0.5 rounded border-neutral-300 text-primary focus:ring-primary"
                                                             />
                                                             <div className="space-y-0.5">
                                                                 <div className="font-medium text-neutral-900 dark:text-neutral-100">
@@ -511,7 +506,7 @@ export default function RolesIndex({ roles = [], groupedPermissions = {} }: Prop
                                 <Button
                                     type="submit"
                                     disabled={editForm.processing}
-                                    className="bg-[#7367F0] hover:bg-[#685dd8] shadow-[0_2px_4px_rgba(115,103,240,0.4)] text-white"
+                                    className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white"
                                 >
                                     {editForm.processing ? 'Saving...' : 'Save Changes'}
                                 </Button>

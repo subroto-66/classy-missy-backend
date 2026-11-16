@@ -35,6 +35,7 @@ import {
     Users,
     Wallet,
 } from 'lucide-react';
+import { ThemeColorPicker } from '@/components/theme-color-picker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -159,7 +160,7 @@ export default function VuexyAdminDashboard({
                 );
             case 'pending':
                 return (
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-[#7367f0]/10 px-2.5 py-1 text-xs font-semibold text-[#7367f0]">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
                         Pending
                     </span>
                 );
@@ -187,6 +188,9 @@ export default function VuexyAdminDashboard({
             <Head title="Vuexy eCommerce Dashboard - Classy Missy" />
 
             <div className="flex flex-1 flex-col gap-6 p-4 sm:p-6 bg-[#f8f7fa] dark:bg-[#25293c] min-h-[calc(100vh-4rem)]">
+                {/* Dynamic Theme Brand Color Customizer */}
+                <ThemeColorPicker variant="card" />
+
                 {/* Row 1: Vuexy Congratulations Card + Statistics Card */}
                 <div className="grid gap-6 lg:grid-cols-12">
                     {/* Vuexy Congratulations Hero Card (col-4) */}
@@ -202,7 +206,7 @@ export default function VuexyAdminDashboard({
                             </div>
 
                             <div className="space-y-1">
-                                <div className="text-3xl font-extrabold text-[#7367F0] font-sans">
+                                <div className="text-3xl font-extrabold text-primary font-sans">
                                     ৳{Number(stats.totalRevenue).toLocaleString()}
                                 </div>
                                 <div className="text-xs font-medium text-[#82808b] dark:text-[#a5a3ae]">
@@ -213,7 +217,7 @@ export default function VuexyAdminDashboard({
                             <div className="pt-2">
                                 <Button
                                     asChild
-                                    className="bg-[#7367F0] hover:bg-[#685dd8] text-white shadow-[0_2px_4px_rgba(115,103,240,0.4)] rounded-lg text-xs font-semibold h-9 px-4"
+                                    className="bg-primary hover:bg-[var(--primary-hover)] text-white shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] rounded-lg text-xs font-semibold h-9 px-4"
                                 >
                                     <Link href={`${prefix}/admin/orders`}>View Store Sales</Link>
                                 </Button>
@@ -222,8 +226,8 @@ export default function VuexyAdminDashboard({
                             {/* Vuexy Iconic Trophy / Star Vector Graphic */}
                             <div className="absolute right-3 bottom-3 opacity-90 pointer-events-none">
                                 <div className="relative flex size-28 items-center justify-center">
-                                    <div className="absolute size-24 rounded-full bg-[#7367F0]/10 dark:bg-[#7367F0]/20 animate-pulse" />
-                                    <Award className="size-16 text-[#7367F0] stroke-[1.5]" />
+                                    <div className="absolute size-24 rounded-full bg-primary/10 dark:bg-primary/20 animate-pulse" />
+                                    <Award className="size-16 text-primary stroke-[1.5]" />
                                     <Sparkles className="absolute top-2 right-4 size-5 text-[#ff9f43] animate-bounce" />
                                 </div>
                             </div>
@@ -246,9 +250,9 @@ export default function VuexyAdminDashboard({
 
                         <CardContent className="pt-4 pb-6">
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-                                {/* Stat 1: Sales (Purple Avatar) */}
+                                {/* Stat 1: Sales (Primary Avatar) */}
                                 <div className="flex items-center gap-3.5">
-                                    <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#7367f0]/10 text-[#7367f0]">
+                                    <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                         <TrendingUp className="size-5" />
                                     </div>
                                     <div className="space-y-0.5">
@@ -326,8 +330,8 @@ export default function VuexyAdminDashboard({
                                             onClick={() => setChartMetric('revenue')}
                                             className="flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
                                         >
-                                            <span className="size-2.5 rounded-full bg-[#7367F0]" />
-                                            <span className={chartMetric === 'revenue' ? 'text-[#7367F0]' : 'text-[#82808b]'}>
+                                            <span className="size-2.5 rounded-full bg-primary" />
+                                            <span className={chartMetric === 'revenue' ? 'text-primary' : 'text-[#82808b]'}>
                                                 Earning (৳)
                                             </span>
                                         </button>
@@ -384,7 +388,7 @@ export default function VuexyAdminDashboard({
                                                             style={{ height: `${pct}%` }}
                                                             className={`w-1/2 rounded-t-md transition-all ${
                                                                 chartMetric === 'revenue'
-                                                                    ? 'bg-[#7367F0] group-hover:bg-[#685dd8]'
+                                                                    ? 'bg-primary group-hover:bg-[var(--primary-hover)]'
                                                                     : 'bg-[#ff9f43] group-hover:bg-[#f5902f]'
                                                             }`}
                                                         />
@@ -439,7 +443,7 @@ export default function VuexyAdminDashboard({
                                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                             />
                                             <path
-                                                className="text-[#7367F0]"
+                                                className="text-primary"
                                                 strokeDasharray="78, 100"
                                                 strokeWidth="3.5"
                                                 strokeLinecap="round"
@@ -459,7 +463,7 @@ export default function VuexyAdminDashboard({
 
                                 <Button
                                     size="sm"
-                                    className="w-full bg-[#7367F0] hover:bg-[#685dd8] text-white rounded-lg text-xs font-semibold h-8 shadow-[0_2px_4px_rgba(115,103,240,0.4)]"
+                                    className="w-full bg-primary hover:bg-[var(--primary-hover)] text-white rounded-lg text-xs font-semibold h-8 shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)]"
                                 >
                                     Increase Budget
                                 </Button>
@@ -505,11 +509,11 @@ export default function VuexyAdminDashboard({
                                     <div key={cat.id} className="space-y-1 text-xs">
                                         <div className="flex justify-between font-semibold">
                                             <span className="text-[#444050] dark:text-[#cfcde4]">{cat.name}</span>
-                                            <span className="text-[#7367f0]">{cat.share_percentage}%</span>
+                                            <span className="text-primary">{cat.share_percentage}%</span>
                                         </div>
                                         <div className="h-2 w-full overflow-hidden rounded-full bg-[#f8f7fa] dark:bg-[#25293c]">
                                             <div
-                                                className="h-full rounded-full bg-gradient-to-r from-[#7367F0] to-[#9e95f5]"
+                                                className="h-full rounded-full bg-gradient-to-r from-primary to-[var(--primary-light)]"
                                                 style={{ width: `${cat.share_percentage}%` }}
                                             />
                                         </div>
@@ -528,7 +532,7 @@ export default function VuexyAdminDashboard({
                                 <CardTitle className="text-base font-bold text-[#444050] dark:text-[#cfcde4]">
                                     Orders Management
                                 </CardTitle>
-                                <span className="rounded-full bg-[#7367f0]/10 px-2.5 py-0.5 text-xs font-bold text-[#7367f0]">
+                                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
                                     {recentOrders.length} New
                                 </span>
                             </div>
@@ -544,8 +548,8 @@ export default function VuexyAdminDashboard({
                                 onClick={() => setOrderStatusTab('all')}
                                 className={`rounded-md px-3 py-1 font-semibold transition ${
                                     orderStatusTab === 'all'
-                                        ? 'bg-[#7367F0] text-white shadow-xs'
-                                        : 'text-[#5d596c] hover:text-[#7367F0] dark:text-[#cfcde4]'
+                                        ? 'bg-primary text-white shadow-xs'
+                                        : 'text-[#5d596c] hover:text-primary dark:text-[#cfcde4]'
                                 }`}
                             >
                                 All ({recentOrders.length})
@@ -555,8 +559,8 @@ export default function VuexyAdminDashboard({
                                 onClick={() => setOrderStatusTab('processing')}
                                 className={`rounded-md px-3 py-1 font-semibold transition ${
                                     orderStatusTab === 'processing'
-                                        ? 'bg-[#7367F0] text-white shadow-xs'
-                                        : 'text-[#5d596c] hover:text-[#7367F0] dark:text-[#cfcde4]'
+                                        ? 'bg-primary text-white shadow-xs'
+                                        : 'text-[#5d596c] hover:text-primary dark:text-[#cfcde4]'
                                 }`}
                             >
                                 Processing ({stats.ordersStatus.processing})
@@ -566,8 +570,8 @@ export default function VuexyAdminDashboard({
                                 onClick={() => setOrderStatusTab('delivered')}
                                 className={`rounded-md px-3 py-1 font-semibold transition ${
                                     orderStatusTab === 'delivered'
-                                        ? 'bg-[#7367F0] text-white shadow-xs'
-                                        : 'text-[#5d596c] hover:text-[#7367F0] dark:text-[#cfcde4]'
+                                        ? 'bg-primary text-white shadow-xs'
+                                        : 'text-[#5d596c] hover:text-primary dark:text-[#cfcde4]'
                                 }`}
                             >
                                 Delivered ({stats.ordersStatus.delivered})
@@ -600,16 +604,16 @@ export default function VuexyAdminDashboard({
                                         filteredOrders.map((order) => (
                                             <tr
                                                 key={order.id}
-                                                className="hover:bg-[#7367f0]/5 transition-colors dark:hover:bg-[#353952]"
+                                                className="hover:bg-primary/5 transition-colors dark:hover:bg-[#353952]"
                                             >
-                                                <td className="px-6 py-4 font-bold text-[#7367F0]">
+                                                <td className="px-6 py-4 font-bold text-primary">
                                                     <span className="cursor-pointer hover:underline" onClick={() => setInspectingOrder(order)}>
                                                         {order.order_number}
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#7367f0]/10 text-[#7367f0] font-bold text-xs">
+                                                        <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs">
                                                             {order.customer_name.substring(0, 2).toUpperCase()}
                                                         </div>
                                                         <div>
@@ -641,7 +645,7 @@ export default function VuexyAdminDashboard({
                                                     <select
                                                         value={order.status}
                                                         onChange={(e) => handleQuickStatusChange(order.id, e.target.value)}
-                                                        className="rounded-lg border border-[#dbdade] bg-white px-2.5 py-1 text-xs font-semibold text-[#444050] shadow-xs focus:border-[#7367f0] focus:outline-none dark:border-[#434968] dark:bg-[#25293c] dark:text-[#cfcde4]"
+                                                        className="rounded-lg border border-[#dbdade] bg-white px-2.5 py-1 text-xs font-semibold text-[#444050] shadow-xs focus:border-primary focus:outline-none dark:border-[#434968] dark:bg-[#25293c] dark:text-[#cfcde4]"
                                                     >
                                                         <option value="pending">Pending</option>
                                                         <option value="processing">Processing</option>
@@ -658,7 +662,7 @@ export default function VuexyAdminDashboard({
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => setInspectingOrder(order)}
-                                                        className="h-8 px-2.5 text-xs text-[#7367F0] hover:bg-[#7367f0]/10 font-semibold"
+                                                        className="h-8 px-2.5 text-xs text-primary hover:bg-primary/10 font-semibold"
                                                     >
                                                         <Eye className="size-3.5 mr-1" />
                                                         <span>View</span>
@@ -686,7 +690,7 @@ export default function VuexyAdminDashboard({
                                     Top ranked by customer orders & rating
                                 </CardDescription>
                             </div>
-                            <Button variant="ghost" size="sm" asChild className="text-xs text-[#7367F0] font-semibold">
+                            <Button variant="ghost" size="sm" asChild className="text-xs text-primary font-semibold">
                                 <Link href={`${prefix}/admin/products`}>View All</Link>
                             </Button>
                         </CardHeader>
@@ -738,7 +742,7 @@ export default function VuexyAdminDashboard({
                             {recentActivity.map((act) => (
                                 <div key={act.id} className="flex items-center justify-between gap-3 text-xs">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#7367f0]/10 text-[#7367f0]">
+                                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                             {act.type === 'order' && <ShoppingBag className="size-4" />}
                                             {act.type === 'stock' && <AlertTriangle className="size-4 text-[#ff9f43]" />}
                                             {act.type === 'payment' && <CreditCard className="size-4 text-[#28c76f]" />}
@@ -845,7 +849,7 @@ export default function VuexyAdminDashboard({
                                     </div>
                                     <div className="flex justify-between pt-2 border-t border-[#dbdade] font-extrabold text-sm text-[#444050] dark:border-[#434968] dark:text-white">
                                         <span>Total Settled</span>
-                                        <span className="text-[#7367F0]">৳{inspectingOrder.total_amount.toLocaleString()}</span>
+                                        <span className="text-primary">৳{inspectingOrder.total_amount.toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>
