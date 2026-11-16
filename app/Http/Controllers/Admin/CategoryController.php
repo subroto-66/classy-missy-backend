@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,7 +26,8 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:categories,name'],
-            'image' => ['nullable', 'string', 'max:2048'],
+            'image' => ['nullable'],
+            'image_file' => ['nullable', 'image', 'max:5120'],
             'description' => ['nullable', 'string', 'max:500'],
             'order' => ['nullable', 'integer'],
             'is_active' => ['boolean'],
@@ -34,6 +36,20 @@ class CategoryController extends Controller
         $validated['slug'] = Str::slug($validated['name']);
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['order'] = $validated['order'] ?? (Category::max('order') + 1);
+
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('categories', 'public');
+            $validated['image'] = Storage::url($path);
+        } elseif ($request->hasFile('image')) {
+            $path = $request->file('image')->store('categories', 'public');
+            $validated['image'] = Storage::url($path);
+        } elseif ($request->has('image') && is_string($request->input('image'))) {
+            $validated['image'] = trim($request->input('image')) ?: null;
+        } else {
+            $validated['image'] = null;
+        }
+
+        unset($validated['image_file']);
 
         Category::create($validated);
 
@@ -44,7 +60,8 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:categories,name,' . $category->id],
-            'image' => ['nullable', 'string', 'max:2048'],
+            'image' => ['nullable'],
+            'image_file' => ['nullable', 'image', 'max:5120'],
             'description' => ['nullable', 'string', 'max:500'],
             'order' => ['nullable', 'integer'],
             'is_active' => ['boolean'],
@@ -52,6 +69,18 @@ class CategoryController extends Controller
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['is_active'] = $request->boolean('is_active', true);
+
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('categories', 'public');
+            $validated['image'] = Storage::url($path);
+        } elseif ($request->hasFile('image')) {
+            $path = $request->file('image')->store('categories', 'public');
+            $validated['image'] = Storage::url($path);
+        } elseif ($request->has('image') && is_string($request->input('image'))) {
+            $validated['image'] = trim($request->input('image')) ?: null;
+        }
+
+        unset($validated['image_file']);
 
         $category->update($validated);
 

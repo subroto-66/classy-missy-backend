@@ -568,8 +568,8 @@ class DatabaseSeeder extends Seeder
                 'product_ids' => ['paulas-choice-bha', 'ordinary-glycolic-acid'],
                 'discount_percentage' => 15,
                 'is_active' => true,
-                'start_date' => now()->subDays(5),
-                'end_date' => now()->addDays(25),
+                'start_date' => now()->subDays(5)->format('Y-m-d'),
+                'end_date' => now()->addDays(25)->format('Y-m-d'),
             ]
         );
 
@@ -583,8 +583,8 @@ class DatabaseSeeder extends Seeder
                 'product_ids' => ['panoxyl-acne-wash', 'cerave-retinol-serum'],
                 'discount_percentage' => 10,
                 'is_active' => true,
-                'start_date' => now()->subDays(2),
-                'end_date' => now()->addDays(20),
+                'start_date' => now()->subDays(2)->format('Y-m-d'),
+                'end_date' => now()->addDays(20)->format('Y-m-d'),
             ]
         );
     }

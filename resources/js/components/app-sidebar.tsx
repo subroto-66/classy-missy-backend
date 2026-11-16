@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import {
     LayoutDashboard,
     Megaphone,
@@ -25,62 +25,59 @@ import {
 import { useCurrentUrl } from '@/hooks/use-current-url';
 
 export function AppSidebar() {
-    const page = usePage();
-    const teamSlug = (page.props.currentTeam as { slug?: string } | undefined)?.slug || '';
-    const prefix = teamSlug ? `/${teamSlug}` : '';
     const { isCurrentUrl, isCurrentOrParentUrl } = useCurrentUrl();
     const { toggleSidebar } = useSidebar();
 
     const navItems = [
         {
             title: 'Analytics & Sales',
-            href: `${prefix}/dashboard`,
+            href: '/dashboard',
             icon: LayoutDashboard,
             badge: 'Hot',
             badgeColor: 'bg-[#ff4c51] text-white',
         },
         {
             title: 'Roles & Permissions',
-            href: `${prefix}/admin/roles`,
+            href: '/admin/roles',
             icon: ShieldCheck,
             dividerBefore: true,
         },
         {
             title: 'Users & Staff',
-            href: `${prefix}/admin/users`,
+            href: '/admin/users',
             icon: Users,
         },
         {
             title: 'Products List',
-            href: `${prefix}/admin/products`,
+            href: '/admin/products',
             icon: Package,
             dividerBefore: true,
         },
         {
             title: 'Categories',
-            href: `${prefix}/admin/categories`,
+            href: '/admin/categories',
             icon: Tags,
         },
         {
             title: 'Brands',
-            href: `${prefix}/admin/brands`,
+            href: '/admin/brands',
             icon: Sparkles,
         },
         {
             title: 'Orders',
-            href: `${prefix}/admin/orders`,
+            href: '/admin/orders',
             icon: ShoppingBag,
             badge: '5',
             badgeColor: 'bg-[#7367f0]/15 text-[#7367f0]',
         },
         {
             title: 'Customers',
-            href: `${prefix}/admin/customers`,
+            href: '/admin/customers',
             icon: UserCheck,
         },
         {
             title: 'Glow Campaigns',
-            href: `${prefix}/admin/campaigns`,
+            href: '/admin/campaigns',
             icon: Megaphone,
         },
     ];
@@ -94,7 +91,7 @@ export function AppSidebar() {
             {/* Vuexy Brand Header */}
             <SidebarHeader className="h-16 px-4 flex items-center justify-between border-b border-[#dbdade]/50 dark:border-[#434968]">
                 <div className="flex items-center justify-between w-full">
-                    <Link href={`${prefix}/dashboard`} className="flex items-center gap-2.5">
+                    <Link href="/dashboard" className="flex items-center gap-2.5">
                         <AppLogo />
                     </Link>
                     <button
@@ -112,9 +109,7 @@ export function AppSidebar() {
             <SidebarContent className="px-3 py-3">
                 <SidebarMenu className="space-y-1">
                     {navItems.map((item) => {
-                        const isDashboard =
-                            item.href === `${prefix}/dashboard` ||
-                            item.href === '/dashboard';
+                        const isDashboard = item.href === '/dashboard';
                         const active = isDashboard
                             ? isCurrentUrl(item.href)
                             : isCurrentUrl(item.href) || isCurrentOrParentUrl(item.href);

@@ -25,8 +25,7 @@ type Props = {
 
 export default function CustomersIndex({ customers = [], filters = {} }: Props) {
     const page = usePage();
-    const teamSlug = (page.props.currentTeam as { slug?: string } | undefined)?.slug || '';
-    const prefix = teamSlug ? `/${teamSlug}` : '';
+    const prefix = '';
 
     const [search, setSearch] = useState(filters.search || '');
     const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
@@ -304,15 +303,15 @@ export default function CustomersIndex({ customers = [], filters = {} }: Props) 
     );
 }
 
-CustomersIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+CustomersIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Dashboard',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/dashboard` : '/dashboard',
+            href: '/dashboard',
         },
         {
             title: 'Customers',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/admin/customers` : '/admin/customers',
+            href: '/admin/customers',
         },
     ],
 });

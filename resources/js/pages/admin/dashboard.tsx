@@ -115,8 +115,7 @@ export default function VuexyAdminDashboard({
     recentActivity = [],
 }: Props) {
     const page = usePage();
-    const teamSlug = (page.props.currentTeam as { slug?: string } | undefined)?.slug || '';
-    const prefix = teamSlug ? `/${teamSlug}` : '';
+    const prefix = '';
     const user = page.props.auth?.user as { name?: string; role?: { name?: string } } | undefined;
     const userName = user?.name?.split(' ')[0] || 'Subroto';
 
@@ -868,15 +867,15 @@ export default function VuexyAdminDashboard({
     );
 }
 
-VuexyAdminDashboard.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+VuexyAdminDashboard.layout = () => ({
     breadcrumbs: [
         {
             title: 'Dashboards',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/dashboard` : '/dashboard',
+            href: '/dashboard',
         },
         {
             title: 'eCommerce & Analytics',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/dashboard` : '/dashboard',
+            href: '/dashboard',
         },
     ],
 });

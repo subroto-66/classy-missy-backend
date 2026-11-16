@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SingleImageUpload } from '@/components/single-image-upload';
 import type { Category } from '@/types';
 
 type Props = {
@@ -22,24 +23,40 @@ type Props = {
 
 export default function CategoriesIndex({ categories = [] }: Props) {
     const page = usePage();
-    const teamSlug = (page.props.currentTeam as { slug?: string } | undefined)?.slug || '';
-    const prefix = teamSlug ? `/${teamSlug}` : '';
+    const prefix = '';
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
     const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
 
-    const createForm = useForm({
+    const createForm = useForm<{
+        name: string;
+        image: string;
+        image_file: File | null;
+        description: string;
+        order: number;
+        is_active: boolean;
+    }>({
         name: '',
         image: '',
+        image_file: null,
         description: '',
         order: categories.length + 1,
         is_active: true,
     });
 
-    const editForm = useForm({
+    const editForm = useForm<{
+        name: string;
+        image: string;
+        image_file: File | null;
+        description: string;
+        order: number;
+        is_active: boolean;
+        _method?: string;
+    }>({
         name: '',
         image: '',
+        image_file: null,
         description: '',
         order: 1,
         is_active: true,
@@ -52,6 +69,7 @@ export default function CategoriesIndex({ categories = [] }: Props) {
         editForm.setData({
             name: c.name,
             image: c.image || '',
+            image_file: null,
             description: c.description || '',
             order: c.order,
             is_active: c.is_active,
@@ -61,6 +79,7 @@ export default function CategoriesIndex({ categories = [] }: Props) {
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         createForm.post(`${prefix}/admin/categories`, {
+            forceFormData: true,
             onSuccess: () => {
                 setIsCreateOpen(false);
                 createForm.reset();
@@ -71,7 +90,12 @@ export default function CategoriesIndex({ categories = [] }: Props) {
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingCategory) return;
-        editForm.put(`${prefix}/admin/categories/${editingCategory.id}`, {
+        editForm.transform((data) => ({
+            ...data,
+            _method: 'PUT',
+        }));
+        editForm.post(`${prefix}/admin/categories/${editingCategory.id}`, {
+            forceFormData: true,
             onSuccess: () => {
                 setEditingCategory(null);
                 editForm.reset();
@@ -181,7 +205,7 @@ export default function CategoriesIndex({ categories = [] }: Props) {
 
                 {/* Add Category Dialog */}
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Add Category</DialogTitle>
                             <DialogDescription>Create a collection to group related beauty products.</DialogDescription>
@@ -201,15 +225,14 @@ export default function CategoriesIndex({ categories = [] }: Props) {
                                 )}
                             </div>
 
-                            <div className="space-y-1.5">
-                                <Label htmlFor="c-image">Banner / Thumbnail Image URL</Label>
-                                <Input
-                                    id="c-image"
-                                    placeholder="https://images.unsplash.com/photo-..."
-                                    value={createForm.data.image}
-                                    onChange={(e) => createForm.setData('image', e.target.value)}
-                                />
-                            </div>
+                            <SingleImageUpload
+                                file={createForm.data.image_file}
+                                onFileChange={(file) => createForm.setData('image_file', file)}
+                                existingUrl={createForm.data.image}
+                                onExistingUrlChange={(url) => createForm.setData('image', url || '')}
+                                label="Category Cover Image"
+                                description="Upload category cover photo (PNG, JPG, WEBP up to 5MB)"
+                            />
 
                             <div className="space-y-1.5">
                                 <Label htmlFor="c-desc">Description</Label>
@@ -245,7 +268,7 @@ export default function CategoriesIndex({ categories = [] }: Props) {
 
                 {/* Edit Category Dialog */}
                 <Dialog open={!!editingCategory} onOpenChange={(open) => !open && setEditingCategory(null)}>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Edit Category: {editingCategory?.name}</DialogTitle>
                         </DialogHeader>
@@ -260,14 +283,14 @@ export default function CategoriesIndex({ categories = [] }: Props) {
                                 />
                             </div>
 
-                            <div className="space-y-1.5">
-                                <Label htmlFor="edit-c-image">Image URL</Label>
-                                <Input
-                                    id="edit-c-image"
-                                    value={editForm.data.image}
-                                    onChange={(e) => editForm.setData('image', e.target.value)}
-                                />
-                            </div>
+                            <SingleImageUpload
+                                file={editForm.data.image_file}
+                                onFileChange={(file) => editForm.setData('image_file', file)}
+                                existingUrl={editForm.data.image}
+                                onExistingUrlChange={(url) => editForm.setData('image', url || '')}
+                                label="Category Cover Image"
+                                description="Upload category cover photo (PNG, JPG, WEBP up to 5MB)"
+                            />
 
                             <div className="space-y-1.5">
                                 <Label htmlFor="edit-c-desc">Description</Label>
@@ -337,15 +360,15 @@ export default function CategoriesIndex({ categories = [] }: Props) {
     );
 }
 
-CategoriesIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+CategoriesIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Dashboard',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/dashboard` : '/dashboard',
+            href: '/dashboard',
         },
         {
             title: 'Categories',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/admin/categories` : '/admin/categories',
+            href: '/admin/categories',
         },
     ],
 });

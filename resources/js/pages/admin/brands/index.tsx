@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SingleImageUpload } from '@/components/single-image-upload';
 import type { Brand } from '@/types';
 
 type Props = {
@@ -22,24 +23,40 @@ type Props = {
 
 export default function BrandsIndex({ brands = [] }: Props) {
     const page = usePage();
-    const teamSlug = (page.props.currentTeam as { slug?: string } | undefined)?.slug || '';
-    const prefix = teamSlug ? `/${teamSlug}` : '';
+    const prefix = '';
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
     const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null);
 
-    const createForm = useForm({
+    const createForm = useForm<{
+        name: string;
+        logo: string;
+        logo_file: File | null;
+        description: string;
+        website: string;
+        is_active: boolean;
+    }>({
         name: '',
         logo: '',
+        logo_file: null,
         description: '',
         website: '',
         is_active: true,
     });
 
-    const editForm = useForm({
+    const editForm = useForm<{
+        name: string;
+        logo: string;
+        logo_file: File | null;
+        description: string;
+        website: string;
+        is_active: boolean;
+        _method?: string;
+    }>({
         name: '',
         logo: '',
+        logo_file: null,
         description: '',
         website: '',
         is_active: true,
@@ -52,6 +69,7 @@ export default function BrandsIndex({ brands = [] }: Props) {
         editForm.setData({
             name: b.name,
             logo: b.logo || '',
+            logo_file: null,
             description: b.description || '',
             website: b.website || '',
             is_active: b.is_active,
@@ -61,6 +79,7 @@ export default function BrandsIndex({ brands = [] }: Props) {
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         createForm.post(`${prefix}/admin/brands`, {
+            forceFormData: true,
             onSuccess: () => {
                 setIsCreateOpen(false);
                 createForm.reset();
@@ -71,7 +90,12 @@ export default function BrandsIndex({ brands = [] }: Props) {
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingBrand) return;
-        editForm.put(`${prefix}/admin/brands/${editingBrand.id}`, {
+        editForm.transform((data) => ({
+            ...data,
+            _method: 'PUT',
+        }));
+        editForm.post(`${prefix}/admin/brands/${editingBrand.id}`, {
+            forceFormData: true,
             onSuccess: () => {
                 setEditingBrand(null);
                 editForm.reset();
@@ -174,7 +198,7 @@ export default function BrandsIndex({ brands = [] }: Props) {
 
                 {/* Add Brand Modal */}
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Add Brand</DialogTitle>
                             <DialogDescription>Add a beauty or skincare brand to your catalog.</DialogDescription>
@@ -194,15 +218,14 @@ export default function BrandsIndex({ brands = [] }: Props) {
                                 )}
                             </div>
 
-                            <div className="space-y-1.5">
-                                <Label htmlFor="b-logo">Logo URL</Label>
-                                <Input
-                                    id="b-logo"
-                                    placeholder="https://..."
-                                    value={createForm.data.logo}
-                                    onChange={(e) => createForm.setData('logo', e.target.value)}
-                                />
-                            </div>
+                            <SingleImageUpload
+                                file={createForm.data.logo_file}
+                                onFileChange={(file) => createForm.setData('logo_file', file)}
+                                existingUrl={createForm.data.logo}
+                                onExistingUrlChange={(url) => createForm.setData('logo', url || '')}
+                                label="Brand Logo"
+                                description="Upload brand logo icon or mark (PNG, JPG, SVG, WEBP)"
+                            />
 
                             <div className="space-y-1.5">
                                 <Label htmlFor="b-website">Official Website</Label>
@@ -238,7 +261,7 @@ export default function BrandsIndex({ brands = [] }: Props) {
 
                 {/* Edit Brand Modal */}
                 <Dialog open={!!editingBrand} onOpenChange={(open) => !open && setEditingBrand(null)}>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Edit Brand: {editingBrand?.name}</DialogTitle>
                         </DialogHeader>
@@ -253,14 +276,14 @@ export default function BrandsIndex({ brands = [] }: Props) {
                                 />
                             </div>
 
-                            <div className="space-y-1.5">
-                                <Label htmlFor="edit-b-logo">Logo URL</Label>
-                                <Input
-                                    id="edit-b-logo"
-                                    value={editForm.data.logo}
-                                    onChange={(e) => editForm.setData('logo', e.target.value)}
-                                />
-                            </div>
+                            <SingleImageUpload
+                                file={editForm.data.logo_file}
+                                onFileChange={(file) => editForm.setData('logo_file', file)}
+                                existingUrl={editForm.data.logo}
+                                onExistingUrlChange={(url) => editForm.setData('logo', url || '')}
+                                label="Brand Logo"
+                                description="Upload brand logo icon or mark (PNG, JPG, SVG, WEBP)"
+                            />
 
                             <div className="space-y-1.5">
                                 <Label htmlFor="edit-b-website">Website</Label>
@@ -316,15 +339,15 @@ export default function BrandsIndex({ brands = [] }: Props) {
     );
 }
 
-BrandsIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+BrandsIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Dashboard',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/dashboard` : '/dashboard',
+            href: '/dashboard',
         },
         {
             title: 'Brands',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/admin/brands` : '/admin/brands',
+            href: '/admin/brands',
         },
     ],
 });

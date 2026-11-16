@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SingleImageUpload } from '@/components/single-image-upload';
+import { formatDateRange, toInputDate } from '@/lib/utils';
 import type { Campaign, Product } from '@/types';
 
 type Props = {
@@ -23,29 +25,51 @@ type Props = {
 
 export default function CampaignsIndex({ campaigns = [], products = [] }: Props) {
     const page = usePage();
-    const teamSlug = (page.props.currentTeam as { slug?: string } | undefined)?.slug || '';
-    const prefix = teamSlug ? `/${teamSlug}` : '';
+    const prefix = '';
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
     const [deletingCampaign, setDeletingCampaign] = useState<Campaign | null>(null);
 
-    const createForm = useForm({
+    const createForm = useForm<{
+        title: string;
+        eyebrow: string;
+        description: string;
+        image: string;
+        image_file: File | null;
+        discount_percentage: number;
+        is_active: boolean;
+        start_date: string;
+        end_date: string;
+    }>({
         title: '',
         eyebrow: 'Your glow, your routine',
         description: '',
         image: '',
+        image_file: null,
         discount_percentage: 15,
         is_active: true,
         start_date: '',
         end_date: '',
     });
 
-    const editForm = useForm({
+    const editForm = useForm<{
+        title: string;
+        eyebrow: string;
+        description: string;
+        image: string;
+        image_file: File | null;
+        discount_percentage: number;
+        is_active: boolean;
+        start_date: string;
+        end_date: string;
+        _method?: string;
+    }>({
         title: '',
         eyebrow: '',
         description: '',
         image: '',
+        image_file: null,
         discount_percentage: 0,
         is_active: true,
         start_date: '',
@@ -61,16 +85,18 @@ export default function CampaignsIndex({ campaigns = [], products = [] }: Props)
             eyebrow: c.eyebrow || '',
             description: c.description || '',
             image: c.image || '',
+            image_file: null,
             discount_percentage: c.discount_percentage,
             is_active: c.is_active,
-            start_date: c.start_date || '',
-            end_date: c.end_date || '',
+            start_date: toInputDate(c.start_date),
+            end_date: toInputDate(c.end_date),
         });
     };
 
     const handleCreateSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         createForm.post(`${prefix}/admin/campaigns`, {
+            forceFormData: true,
             onSuccess: () => {
                 setIsCreateOpen(false);
                 createForm.reset();
@@ -81,7 +107,12 @@ export default function CampaignsIndex({ campaigns = [], products = [] }: Props)
     const handleEditSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingCampaign) return;
-        editForm.put(`${prefix}/admin/campaigns/${editingCampaign.id}`, {
+        editForm.transform((data) => ({
+            ...data,
+            _method: 'PUT',
+        }));
+        editForm.post(`${prefix}/admin/campaigns/${editingCampaign.id}`, {
+            forceFormData: true,
             onSuccess: () => {
                 setEditingCampaign(null);
                 editForm.reset();
@@ -168,9 +199,9 @@ export default function CampaignsIndex({ campaigns = [], products = [] }: Props)
 
                                 <div className="flex items-center justify-between pt-2 border-t border-neutral-100 text-xs text-neutral-400 dark:border-neutral-800">
                                     <div className="flex items-center gap-1.5">
-                                        <Calendar className="size-3.5" />
-                                        <span>
-                                            {c.start_date ? `${c.start_date} to ${c.end_date || 'Ongoing'}` : 'Always Active'}
+                                        <Calendar className="size-3.5 text-[#7367F0]" />
+                                        <span className="font-medium text-neutral-700 dark:text-neutral-300">
+                                            {formatDateRange(c.start_date, c.end_date)}
                                         </span>
                                     </div>
 
@@ -201,7 +232,7 @@ export default function CampaignsIndex({ campaigns = [], products = [] }: Props)
 
                 {/* Add Campaign Modal */}
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Create Promotional Campaign</DialogTitle>
                         </DialogHeader>
@@ -230,15 +261,14 @@ export default function CampaignsIndex({ campaigns = [], products = [] }: Props)
                                 />
                             </div>
 
-                            <div className="space-y-1.5">
-                                <Label htmlFor="camp-image">Banner Image URL</Label>
-                                <Input
-                                    id="camp-image"
-                                    placeholder="https://images.unsplash.com/photo-..."
-                                    value={createForm.data.image}
-                                    onChange={(e) => createForm.setData('image', e.target.value)}
-                                />
-                            </div>
+                            <SingleImageUpload
+                                file={createForm.data.image_file}
+                                onFileChange={(file) => createForm.setData('image_file', file)}
+                                existingUrl={createForm.data.image}
+                                onExistingUrlChange={(url) => createForm.setData('image', url || '')}
+                                label="Campaign Banner Image"
+                                description="Upload campaign promotional banner (PNG, JPG, WEBP up to 5MB)"
+                            />
 
                             <div className="space-y-1.5">
                                 <Label htmlFor="camp-discount">Discount Percentage (%)</Label>
@@ -258,6 +288,27 @@ export default function CampaignsIndex({ campaigns = [], products = [] }: Props)
                                     value={createForm.data.description}
                                     onChange={(e) => createForm.setData('description', e.target.value)}
                                 />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="camp-start-date">Start Date</Label>
+                                    <Input
+                                        id="camp-start-date"
+                                        type="date"
+                                        value={createForm.data.start_date}
+                                        onChange={(e) => createForm.setData('start_date', e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="camp-end-date">End Date</Label>
+                                    <Input
+                                        id="camp-end-date"
+                                        type="date"
+                                        value={createForm.data.end_date}
+                                        onChange={(e) => createForm.setData('end_date', e.target.value)}
+                                    />
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-2 pt-1">
@@ -287,7 +338,7 @@ export default function CampaignsIndex({ campaigns = [], products = [] }: Props)
 
                 {/* Edit Campaign Modal */}
                 <Dialog open={!!editingCampaign} onOpenChange={(open) => !open && setEditingCampaign(null)}>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-lg">
                         <DialogHeader>
                             <DialogTitle>Edit Campaign: {editingCampaign?.title}</DialogTitle>
                         </DialogHeader>
@@ -311,14 +362,14 @@ export default function CampaignsIndex({ campaigns = [], products = [] }: Props)
                                 />
                             </div>
 
-                            <div className="space-y-1.5">
-                                <Label htmlFor="edit-camp-image">Banner Image URL</Label>
-                                <Input
-                                    id="edit-camp-image"
-                                    value={editForm.data.image}
-                                    onChange={(e) => editForm.setData('image', e.target.value)}
-                                />
-                            </div>
+                            <SingleImageUpload
+                                file={editForm.data.image_file}
+                                onFileChange={(file) => editForm.setData('image_file', file)}
+                                existingUrl={editForm.data.image}
+                                onExistingUrlChange={(url) => editForm.setData('image', url || '')}
+                                label="Campaign Banner Image"
+                                description="Upload campaign promotional banner (PNG, JPG, WEBP up to 5MB)"
+                            />
 
                             <div className="space-y-1.5">
                                 <Label htmlFor="edit-camp-discount">Discount Percentage (%)</Label>
@@ -337,6 +388,27 @@ export default function CampaignsIndex({ campaigns = [], products = [] }: Props)
                                     value={editForm.data.description}
                                     onChange={(e) => editForm.setData('description', e.target.value)}
                                 />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="edit-camp-start-date">Start Date</Label>
+                                    <Input
+                                        id="edit-camp-start-date"
+                                        type="date"
+                                        value={editForm.data.start_date}
+                                        onChange={(e) => editForm.setData('start_date', e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="edit-camp-end-date">End Date</Label>
+                                    <Input
+                                        id="edit-camp-end-date"
+                                        type="date"
+                                        value={editForm.data.end_date}
+                                        onChange={(e) => editForm.setData('end_date', e.target.value)}
+                                    />
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-2 pt-1">
@@ -388,15 +460,15 @@ export default function CampaignsIndex({ campaigns = [], products = [] }: Props)
     );
 }
 
-CampaignsIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+CampaignsIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Dashboard',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/dashboard` : '/dashboard',
+            href: '/dashboard',
         },
         {
             title: 'Campaigns',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/admin/campaigns` : '/admin/campaigns',
+            href: '/admin/campaigns',
         },
     ],
 });

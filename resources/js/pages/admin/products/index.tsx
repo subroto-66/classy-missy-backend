@@ -25,7 +25,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ProductImagesInput } from '@/components/product-images-input';
+import { MultipleImageUpload } from '@/components/multiple-image-upload';
+import { SingleImageUpload } from '@/components/single-image-upload';
 import { RichTextEditor } from '@/components/rich-text-editor';
 import type { Brand, Category, Product } from '@/types';
 
@@ -48,8 +49,7 @@ export default function ProductsIndex({
     filters = {},
 }: Props) {
     const page = usePage();
-    const teamSlug = (page.props.currentTeam as { slug?: string } | undefined)?.slug || '';
-    const prefix = teamSlug ? `/${teamSlug}` : '';
+    const prefix = '';
 
     const [search, setSearch] = useState(filters.search || '');
     const [selectedCategory, setSelectedCategory] = useState(filters.category_id || '');
@@ -475,10 +475,7 @@ export default function ProductsIndex({
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
                     <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle>Add New Skincare Product</DialogTitle>
-                            <DialogDescription>
-                                Fill in specifications, pricing, formula highlights, and inventory thresholds.
-                            </DialogDescription>
+                            <DialogTitle>Add New Product</DialogTitle>
                         </DialogHeader>
 
                         <form onSubmit={handleCreateSubmit} className="space-y-4 pt-2">
@@ -596,13 +593,22 @@ export default function ProductsIndex({
                                 </div>
                             </div>
 
-                            <ProductImagesInput
-                                thumbnailFile={createForm.data.image_file}
-                                onThumbnailFileChange={(file) => createForm.setData('image_file', file)}
-                                existingThumbnail={createForm.data.image}
-                                onExistingThumbnailChange={(url) => createForm.setData('image', url || '')}
-                                galleryFiles={createForm.data.gallery_files}
-                                onGalleryFilesChange={(files) => createForm.setData('gallery_files', files)}
+                            {/* Single Thumbnail Image Upload */}
+                            <SingleImageUpload
+                                file={createForm.data.image_file}
+                                onFileChange={(file) => createForm.setData('image_file', file)}
+                                existingUrl={createForm.data.image}
+                                onExistingUrlChange={(url) => createForm.setData('image', url || '')}
+                                label="Product Thumbnail"
+                                description="Upload product photo (PNG, JPG, WEBP up to 5MB)"
+                            />
+
+                            {/* Multiple Gallery Images Upload */}
+                            <MultipleImageUpload
+                                files={createForm.data.gallery_files}
+                                onFilesChange={(files) => createForm.setData('gallery_files', files)}
+                                label="Product Gallery"
+                                description="Upload multiple photos"
                             />
 
                             <div className="space-y-1.5">
@@ -673,10 +679,7 @@ export default function ProductsIndex({
                 <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
                     <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
                         <DialogHeader>
-                            <DialogTitle>Edit Product: {editingProduct?.name}</DialogTitle>
-                            <DialogDescription>
-                                Update pricing, stock count, formula highlights, or description.
-                            </DialogDescription>
+                            <DialogTitle>Edit Product </DialogTitle>
                         </DialogHeader>
 
                         <form onSubmit={handleEditSubmit} className="space-y-4 pt-2">
@@ -787,15 +790,24 @@ export default function ProductsIndex({
                                 </div>
                             </div>
 
-                            <ProductImagesInput
-                                thumbnailFile={editForm.data.image_file}
-                                onThumbnailFileChange={(file) => editForm.setData('image_file', file)}
-                                existingThumbnail={editForm.data.image}
-                                onExistingThumbnailChange={(url) => editForm.setData('image', url || '')}
-                                existingGallery={editForm.data.existing_gallery}
-                                onExistingGalleryChange={(urls) => editForm.setData('existing_gallery', urls)}
-                                galleryFiles={editForm.data.gallery_files}
-                                onGalleryFilesChange={(files) => editForm.setData('gallery_files', files)}
+                            {/* Single Thumbnail Image Upload */}
+                            <SingleImageUpload
+                                file={editForm.data.image_file}
+                                onFileChange={(file) => editForm.setData('image_file', file)}
+                                existingUrl={editForm.data.image}
+                                onExistingUrlChange={(url) => editForm.setData('image', url || '')}
+                                label="Product Thumbnail"
+                                description="Upload product photo (PNG, JPG, WEBP up to 5MB)"
+                            />
+
+                            {/* Multiple Gallery Images Upload */}
+                            <MultipleImageUpload
+                                files={editForm.data.gallery_files}
+                                onFilesChange={(files) => editForm.setData('gallery_files', files)}
+                                existingUrls={editForm.data.existing_gallery}
+                                onExistingUrlsChange={(urls) => editForm.setData('existing_gallery', urls)}
+                                label="Product Gallery"
+                                description="Upload multiple photos"
                             />
 
                             <div className="space-y-1.5">
@@ -809,7 +821,7 @@ export default function ProductsIndex({
 
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="edit-p-desc">Product Description & Formula Details</Label>
+                                    <Label htmlFor="edit-p-desc">Product Description</Label>
                                     <span className="text-[11px] text-[#a5a3ae]">Rich Text Editor (HTML)</span>
                                 </div>
                                 <RichTextEditor
@@ -889,15 +901,15 @@ export default function ProductsIndex({
     );
 }
 
-ProductsIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+ProductsIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Dashboard',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/dashboard` : '/dashboard',
+            href: '/dashboard',
         },
         {
             title: 'Products',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/admin/products` : '/admin/products',
+            href: '/admin/products',
         },
     ],
 });

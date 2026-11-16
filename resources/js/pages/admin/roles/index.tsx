@@ -35,8 +35,7 @@ type Props = {
 
 export default function RolesIndex({ roles = [], groupedPermissions = {} }: Props) {
     const page = usePage();
-    const teamSlug = (page.props.currentTeam as { slug?: string } | undefined)?.slug || '';
-    const prefix = teamSlug ? `/${teamSlug}` : '';
+    const prefix = '';
 
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingRole, setEditingRole] = useState<Role | null>(null);
@@ -551,15 +550,15 @@ export default function RolesIndex({ roles = [], groupedPermissions = {} }: Prop
     );
 }
 
-RolesIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+RolesIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Dashboard',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/dashboard` : '/dashboard',
+            href: '/dashboard',
         },
         {
             title: 'Roles & Permissions',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/admin/roles` : '/admin/roles',
+            href: '/admin/roles',
         },
     ],
 });

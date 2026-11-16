@@ -29,7 +29,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
 
-    Route::get('settings/teams', [TeamController::class, 'index'])->name('teams.index');
+    // Teams disabled for single-store setup; redirect any direct visits to profile
+    Route::redirect('settings/teams', '/settings/profile')->name('teams.index');
     Route::post('settings/teams', [TeamController::class, 'store'])->name('teams.store');
 
     Route::middleware(EnsureTeamMembership::class)->group(function () {

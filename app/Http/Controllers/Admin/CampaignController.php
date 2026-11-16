@@ -7,6 +7,7 @@ use App\Models\Campaign;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -30,7 +31,8 @@ class CampaignController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'eyebrow' => ['nullable', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:500'],
-            'image' => ['nullable', 'string', 'max:2048'],
+            'image' => ['nullable'],
+            'image_file' => ['nullable', 'image', 'max:5120'],
             'product_ids' => ['nullable', 'array'],
             'discount_percentage' => ['nullable', 'integer', 'min:0', 'max:100'],
             'is_active' => ['boolean'],
@@ -40,6 +42,20 @@ class CampaignController extends Controller
 
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_active'] = $request->boolean('is_active', true);
+
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('campaigns', 'public');
+            $validated['image'] = Storage::url($path);
+        } elseif ($request->hasFile('image')) {
+            $path = $request->file('image')->store('campaigns', 'public');
+            $validated['image'] = Storage::url($path);
+        } elseif ($request->has('image') && is_string($request->input('image'))) {
+            $validated['image'] = trim($request->input('image')) ?: null;
+        } else {
+            $validated['image'] = null;
+        }
+
+        unset($validated['image_file']);
 
         Campaign::create($validated);
 
@@ -52,7 +68,8 @@ class CampaignController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'eyebrow' => ['nullable', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:500'],
-            'image' => ['nullable', 'string', 'max:2048'],
+            'image' => ['nullable'],
+            'image_file' => ['nullable', 'image', 'max:5120'],
             'product_ids' => ['nullable', 'array'],
             'discount_percentage' => ['nullable', 'integer', 'min:0', 'max:100'],
             'is_active' => ['boolean'],
@@ -62,6 +79,18 @@ class CampaignController extends Controller
 
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_active'] = $request->boolean('is_active', true);
+
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('campaigns', 'public');
+            $validated['image'] = Storage::url($path);
+        } elseif ($request->hasFile('image')) {
+            $path = $request->file('image')->store('campaigns', 'public');
+            $validated['image'] = Storage::url($path);
+        } elseif ($request->has('image') && is_string($request->input('image'))) {
+            $validated['image'] = trim($request->input('image')) ?: null;
+        }
+
+        unset($validated['image_file']);
 
         $campaign->update($validated);
 

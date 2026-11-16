@@ -14,7 +14,6 @@ import {
     User,
 } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
-import { TeamSwitcher } from '@/components/team-switcher';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
@@ -55,11 +54,6 @@ export function AppSidebarHeader({
 
             {/* Right: Quick Actions, Live Storefront & User Profile */}
             <div className="flex items-center gap-2.5">
-                {/* Team Switcher in Header */}
-                <div className="hidden sm:flex items-center border-r border-[#dbdade]/50 dark:border-[#434968] pr-2">
-                    <TeamSwitcher inHeader />
-                </div>
-
                 {/* Live Storefront Pill */}
                 <a
                     href="https://eclectic-kleicha-c2a33e.netlify.app/"

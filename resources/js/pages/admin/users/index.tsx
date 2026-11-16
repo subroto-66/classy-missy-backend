@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { formatDate } from '@/lib/utils';
 import type { AdminUser, Role } from '@/types';
 
 type Props = {
@@ -34,8 +35,7 @@ type Props = {
 
 export default function UsersIndex({ users = [], roles = [] }: Props) {
     const page = usePage();
-    const teamSlug = (page.props.currentTeam as { slug?: string } | undefined)?.slug || '';
-    const prefix = teamSlug ? `/${teamSlug}` : '';
+    const prefix = '';
     const currentAuthUserId = (page.props.auth?.user as { id?: number } | undefined)?.id;
 
     const [search, setSearch] = useState('');
@@ -260,7 +260,7 @@ export default function UsersIndex({ users = [], roles = [] }: Props) {
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4 text-xs text-neutral-500">
-                                                    {u.created_at}
+                                                    {formatDate(u.created_at)}
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex items-center justify-end gap-1.5">
@@ -544,15 +544,15 @@ export default function UsersIndex({ users = [], roles = [] }: Props) {
     );
 }
 
-UsersIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+UsersIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Dashboard',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/dashboard` : '/dashboard',
+            href: '/dashboard',
         },
         {
             title: 'Staff & Users',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/admin/users` : '/admin/users',
+            href: '/admin/users',
         },
     ],
 });

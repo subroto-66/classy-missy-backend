@@ -1,18 +1,19 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/hooks/use-initials';
-import type { Team, User } from '@/types';
+import type { User } from '@/types';
 
 export function UserInfo({
     user,
     showEmail = false,
     team = null,
 }: {
-    user: User;
+    user: User & { role?: { name?: string } };
     showEmail?: boolean;
-    team?: Team | null;
+    team?: unknown;
 }) {
     const getInitials = useInitials();
     const showAvatar = Boolean(user.avatar && user.avatar !== '');
+    const roleName = user.role?.name || 'Super Admin';
 
     return (
         <>
@@ -25,17 +26,10 @@ export function UserInfo({
                 </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                {team ? (
-                    <span className="truncate text-xs text-muted-foreground">
-                        {team.name}
-                    </span>
-                ) : null}
-                {!team && showEmail ? (
-                    <span className="truncate text-xs text-muted-foreground">
-                        {user.email}
-                    </span>
-                ) : null}
+                <span className="truncate font-semibold text-[#444050] dark:text-[#cfcde4]">{user.name}</span>
+                <span className="truncate text-xs text-[#82808b] dark:text-[#a5a3ae]">
+                    {showEmail ? user.email : roleName}
+                </span>
             </div>
         </>
     );

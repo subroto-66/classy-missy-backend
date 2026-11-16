@@ -25,6 +25,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { formatDate } from '@/lib/utils';
 import type { Order } from '@/types';
 
 type Props = {
@@ -38,8 +39,7 @@ type Props = {
 
 export default function OrdersIndex({ orders = [], filters = {} }: Props) {
     const page = usePage();
-    const teamSlug = (page.props.currentTeam as { slug?: string } | undefined)?.slug || '';
-    const prefix = teamSlug ? `/${teamSlug}` : '';
+    const prefix = '';
 
     const [search, setSearch] = useState(filters.search || '');
     const [selectedStatus, setSelectedStatus] = useState(filters.status || 'all');
@@ -223,7 +223,7 @@ export default function OrdersIndex({ orders = [], filters = {} }: Props) {
                                                         {o.order_number}
                                                     </div>
                                                     <div className="text-[11px] text-neutral-400">
-                                                        {o.placed_at}
+                                                        {formatDate(o.placed_at, 'with-time')}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -308,7 +308,7 @@ export default function OrdersIndex({ orders = [], filters = {} }: Props) {
                                 {viewingOrder && getStatusBadge(viewingOrder.status)}
                             </div>
                             <DialogDescription>
-                                Placed on {viewingOrder?.placed_at}
+                                Placed on {formatDate(viewingOrder?.placed_at, 'with-time')}
                             </DialogDescription>
                         </DialogHeader>
 
@@ -426,15 +426,15 @@ export default function OrdersIndex({ orders = [], filters = {} }: Props) {
     );
 }
 
-OrdersIndex.layout = (props: { currentTeam?: { slug: string } | null }) => ({
+OrdersIndex.layout = () => ({
     breadcrumbs: [
         {
             title: 'Dashboard',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/dashboard` : '/dashboard',
+            href: '/dashboard',
         },
         {
             title: 'Orders',
-            href: props.currentTeam ? `/${props.currentTeam.slug}/admin/orders` : '/admin/orders',
+            href: '/admin/orders',
         },
     ],
 });
