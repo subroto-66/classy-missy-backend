@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import {
     LayoutDashboard,
     Megaphone,
+    Newspaper,
     Package,
     ShieldCheck,
     ShoppingBag,
@@ -79,6 +80,11 @@ export function AppSidebar() {
             title: 'Glow Campaigns',
             href: '/admin/campaigns',
             icon: Megaphone,
+        },
+        {
+            title: 'Blogs & Articles',
+            href: '/admin/blogs',
+            icon: Newspaper,
         },
     ];
 

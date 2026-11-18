@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -37,8 +38,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
         Route::resource('customers', CustomerController::class)->only(['index', 'update', 'destroy']);
 
-        // Marketing
+        // Marketing & Content
         Route::resource('campaigns', CampaignController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('blogs', BlogController::class)->only(['index', 'store', 'update', 'destroy']);
     });
 });
 

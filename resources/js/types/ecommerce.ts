@@ -145,6 +145,28 @@ export type Campaign = {
     created_at?: string;
 };
 
+export type BlogArticle = {
+    id: number;
+    title: string;
+    slug: string;
+    category: string;
+    published_at: string | null;
+    read_time: string;
+    image: string | null;
+    image_alt?: string | null;
+    excerpt: string | null;
+    intro?: string | null;
+    content?: string[] | null;
+    sections?: Array<{
+        heading: string;
+        paragraphs: string[];
+        bullets?: string[];
+    }> | null;
+    key_takeaways?: string[] | null;
+    is_published: boolean;
+    created_at?: string;
+};
+
 export type PaginationLink = {
     url: string | null;
     label: string;
