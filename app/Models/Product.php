@@ -68,6 +68,11 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
     public function isLowStock(): bool
     {
         return $this->stock_quantity <= $this->low_stock_threshold;
