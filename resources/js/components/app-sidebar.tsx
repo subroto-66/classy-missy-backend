@@ -1,5 +1,6 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
+    Bell,
     LayoutDashboard,
     Megaphone,
     Newspaper,
@@ -11,6 +12,7 @@ import {
     UserCheck,
     Users,
 } from 'lucide-react';
+import type { AdminNotificationsSummary } from '@/types';
 import AppLogo from '@/components/app-logo';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -28,6 +30,9 @@ import { useCurrentUrl } from '@/hooks/use-current-url';
 export function AppSidebar() {
     const { isCurrentUrl, isCurrentOrParentUrl } = useCurrentUrl();
     const { toggleSidebar } = useSidebar();
+    const page = usePage();
+    const adminNotifications = page.props.adminNotifications as AdminNotificationsSummary | undefined;
+    const unreadCount = adminNotifications?.unread_count || 0;
 
     const navItems = [
         {
@@ -35,6 +40,13 @@ export function AppSidebar() {
             href: '/dashboard',
             icon: LayoutDashboard,
             badge: 'Hot',
+            badgeColor: 'bg-[#ff4c51] text-white',
+        },
+        {
+            title: 'Notifications',
+            href: '/admin/notifications',
+            icon: Bell,
+            badge: unreadCount > 0 ? String(unreadCount) : undefined,
             badgeColor: 'bg-[#ff4c51] text-white',
         },
         {

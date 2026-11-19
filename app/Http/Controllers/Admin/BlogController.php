@@ -84,14 +84,23 @@ class BlogController extends Controller
         $validated['read_time'] = $validated['read_time'] ?: '5 min read';
         $validated['published_at'] = $validated['published_at'] ?: now()->format('Y-m-d');
 
-        // Parse paragraphs if content_text is provided
+        // Parse content if content_text is provided
         if (!empty($validated['content_text'])) {
-            $paragraphs = array_filter(
-                array_map('trim', explode("\n\n", str_replace("\r\n", "\n", $validated['content_text'])))
-            );
-            $validated['content'] = array_values($paragraphs);
+            $contentRaw = trim($validated['content_text']);
+            if (preg_match('/<[a-z][\s\S]*>/i', $contentRaw)) {
+                $validated['content'] = [$contentRaw];
+            } else {
+                $paragraphs = array_filter(
+                    array_map('trim', explode("\n\n", str_replace("\r\n", "\n", $contentRaw)))
+                );
+                $validated['content'] = array_values($paragraphs);
+            }
         } else {
             $validated['content'] = [$validated['excerpt'] ?: $validated['title']];
+        }
+
+        if (empty($validated['intro']) && !empty($validated['excerpt'])) {
+            $validated['intro'] = $validated['excerpt'];
         }
 
         // Image upload handling
@@ -111,7 +120,18 @@ class BlogController extends Controller
 
         unset($validated['image_file'], $validated['content_text']);
 
-        Blog::create($validated);
+        $blog = Blog::create($validated);
+
+        try {
+            app(\App\Services\AdminNotificationService::class)->notifyAdmins(
+                title: "New Blog Article Published",
+                message: "\"{$blog->title}\" was published under {$blog->category}.",
+                type: 'blog',
+                link: '/admin/blogs',
+                actionLabel: 'View Article',
+                metadata: ['blog_id' => $blog->id, 'slug' => $blog->slug]
+            );
+        } catch (\Throwable $e) {}
 
         return back()->with('success', 'Blog article created successfully.');
     }
@@ -144,14 +164,23 @@ class BlogController extends Controller
         $validated['is_published'] = $request->boolean('is_published', true);
         $validated['read_time'] = $validated['read_time'] ?: ($blog->read_time ?: '5 min read');
 
-        // Parse content paragraphs if content_text is provided
+        // Parse content if content_text is provided
         if (isset($validated['content_text'])) {
             if (!empty($validated['content_text'])) {
-                $paragraphs = array_filter(
-                    array_map('trim', explode("\n\n", str_replace("\r\n", "\n", $validated['content_text'])))
-                );
-                $validated['content'] = array_values($paragraphs);
+                $contentRaw = trim($validated['content_text']);
+                if (preg_match('/<[a-z][\s\S]*>/i', $contentRaw)) {
+                    $validated['content'] = [$contentRaw];
+                } else {
+                    $paragraphs = array_filter(
+                        array_map('trim', explode("\n\n", str_replace("\r\n", "\n", $contentRaw)))
+                    );
+                    $validated['content'] = array_values($paragraphs);
+                }
+            } else {
+                $validated['content'] = [];
             }
+            // Clear sections so rich content is displayed instead of stale sections
+            $validated['sections'] = null;
             unset($validated['content_text']);
         }
 

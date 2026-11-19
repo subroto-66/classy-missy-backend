@@ -156,7 +156,7 @@ export type BlogArticle = {
     image_alt?: string | null;
     excerpt: string | null;
     intro?: string | null;
-    content?: string[] | null;
+    content?: string[] | string | null;
     sections?: Array<{
         heading: string;
         paragraphs: string[];

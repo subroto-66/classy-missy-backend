@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RoleController;
@@ -41,6 +42,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Marketing & Content
         Route::resource('campaigns', CampaignController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('blogs', BlogController::class)->only(['index', 'store', 'update', 'destroy']);
+
+        // Notifications
+        Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::patch('notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::patch('notifications/{id}/unread', [NotificationController::class, 'markAsUnread'])->name('notifications.unread');
+        Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+        Route::post('notifications/mark-all-unread', [NotificationController::class, 'markAllUnread'])->name('notifications.markAllUnread');
+        Route::post('notifications/test', [NotificationController::class, 'sendTest'])->name('notifications.test');
+        Route::delete('notifications/clear-all', [NotificationController::class, 'clearAll'])->name('notifications.clearAll');
+        Route::delete('notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     });
 });
 

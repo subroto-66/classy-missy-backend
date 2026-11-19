@@ -14,6 +14,7 @@ import {
     User,
 } from 'lucide-react';
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { NotificationDropdown } from '@/components/notification-dropdown';
 import { ThemeColorPicker } from '@/components/theme-color-picker';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -59,18 +60,8 @@ export function AppSidebarHeader({
                 {/* Theme Brand Color Customizer Dropdown */}
                 <ThemeColorPicker variant="menu" />
 
-                {/* Notifications Button with Red Pill Badge */}
-                <div className="relative">
-                    <button
-                        type="button"
-                        className="flex size-9 items-center justify-center rounded-lg text-[#5d596c] hover:bg-[#f4f5fb] hover:text-primary dark:text-[#cfcde4] dark:hover:bg-[#353952]"
-                    >
-                        <Bell className="size-[18px]" />
-                        <span className="absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full bg-[#ff4c51] text-[9px] font-bold text-white shadow-xs">
-                            5
-                        </span>
-                    </button>
-                </div>
+                {/* Notifications Dropdown */}
+                <NotificationDropdown />
 
             </div>
         </header>

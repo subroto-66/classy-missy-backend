@@ -210,6 +210,20 @@ class OrderController extends Controller
             $customer->increment('total_orders');
             $customer->increment('total_spent', $totalAmount);
 
+            // Notify admins of new order
+            try {
+                app(\App\Services\AdminNotificationService::class)->notifyAdmins(
+                    title: "New Order #{$order->order_number}",
+                    message: "Customer {$order->customer_name} placed an order for ৳" . number_format($totalAmount, 0),
+                    type: 'order',
+                    link: '/admin/orders',
+                    actionLabel: 'View Order',
+                    metadata: ['order_id' => $order->id, 'order_number' => $order->order_number]
+                );
+            } catch (\Throwable $e) {
+                // Ignore notification failure
+            }
+
             $order->load('items');
 
             return response()->json([

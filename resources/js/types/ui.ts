@@ -19,3 +19,25 @@ export type AuthLayoutProps = {
     title?: string;
     description?: string;
 };
+
+export type NotificationType = 'order' | 'stock' | 'customer' | 'review' | 'blog' | 'system';
+
+export type NotificationItem = {
+    id: string;
+    title: string;
+    message: string;
+    type: NotificationType;
+    link?: string | null;
+    action_label?: string;
+    metadata?: Record<string, unknown>;
+    read: boolean;
+    read_at?: string | null;
+    created_at: string;
+    time_ago: string;
+};
+
+export type AdminNotificationsSummary = {
+    unread_count: number;
+    total_count: number;
+    latest: NotificationItem[];
+};

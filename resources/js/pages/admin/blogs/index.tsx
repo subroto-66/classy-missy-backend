@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RichTextEditor } from '@/components/rich-text-editor';
 import { SingleImageUpload } from '@/components/single-image-upload';
 import type { BlogArticle, PaginatedData } from '@/types';
 
@@ -109,7 +110,29 @@ export default function BlogsIndex({ blogs, categories = [], filters = {} }: Pro
 
     const handleOpenEdit = (b: BlogArticle) => {
         setEditingBlog(b);
-        const contentStr = Array.isArray(b.content) ? b.content.join('\n\n') : '';
+        let contentStr = '';
+        if (Array.isArray(b.content)) {
+            const hasHtml = b.content.some((item) => /<[a-z][\s\S]*>/i.test(item));
+            if (hasHtml) {
+                contentStr = b.content.join('');
+            } else {
+                contentStr = b.content.map((p) => `<p>${p}</p>`).join('');
+            }
+        } else if (typeof b.content === 'string') {
+            contentStr = b.content;
+        } else if (b.sections && Array.isArray(b.sections)) {
+            contentStr = b.sections
+                .map((sec) => {
+                    const heading = `<h2>${sec.heading}</h2>`;
+                    const paras = (sec.paragraphs || []).map((p) => `<p>${p}</p>`).join('');
+                    const bullets = (sec.bullets || []).length
+                        ? `<ul>${sec.bullets.map((item) => `<li>${item}</li>`).join('')}</ul>`
+                        : '';
+                    return heading + paras + bullets;
+                })
+                .join('');
+        }
+
         editForm.setData({
             title: b.title,
             category: b.category,
@@ -211,7 +234,7 @@ export default function BlogsIndex({ blogs, categories = [], filters = {} }: Pro
 
                 {/* Add Article Dialog */}
                 <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>Add Blog Article</DialogTitle>
                             <DialogDescription>
@@ -290,15 +313,19 @@ export default function BlogsIndex({ blogs, categories = [], filters = {} }: Pro
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label htmlFor="b-content">Article Content (paragraphs separated by blank line)</Label>
-                                <textarea
-                                    id="b-content"
-                                    rows={5}
-                                    placeholder="Write your article paragraphs here..."
-                                    className="w-full rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm shadow-xs focus:border-primary focus:outline-hidden dark:border-neutral-700 font-sans"
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="b-content">Article Content *</Label>
+                                    <span className="text-[11px] text-[#a5a3ae]">Rich Text Editor (HTML)</span>
+                                </div>
+                                <RichTextEditor
                                     value={createForm.data.content_text}
-                                    onChange={(e) => createForm.setData('content_text', e.target.value)}
+                                    onChange={(val) => createForm.setData('content_text', val)}
+                                    placeholder="Write your comprehensive skincare guide, routine tips, ingredient analysis, or recommendations..."
+                                    editorClassName="min-h-[220px] max-h-[400px] [&_.tiptap]:min-h-[200px]"
                                 />
+                                {createForm.errors.content_text && (
+                                    <p className="text-xs text-red-600">{createForm.errors.content_text}</p>
+                                )}
                             </div>
 
                             <div className="grid gap-4 sm:grid-cols-2 items-center pt-2">
@@ -344,7 +371,7 @@ export default function BlogsIndex({ blogs, categories = [], filters = {} }: Pro
 
                 {/* Edit Article Dialog */}
                 <Dialog open={!!editingBlog} onOpenChange={(open) => !open && setEditingBlog(null)}>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>Edit Blog Article</DialogTitle>
                             <DialogDescription>
@@ -409,14 +436,19 @@ export default function BlogsIndex({ blogs, categories = [], filters = {} }: Pro
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="eb-content">Article Content (paragraphs separated by blank line)</Label>
-                                    <textarea
-                                        id="eb-content"
-                                        rows={5}
-                                        className="w-full rounded-md border border-neutral-300 bg-transparent px-3 py-2 text-sm shadow-xs focus:border-primary focus:outline-hidden dark:border-neutral-700 font-sans"
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="eb-content">Article Content *</Label>
+                                        <span className="text-[11px] text-[#a5a3ae]">Rich Text Editor (HTML)</span>
+                                    </div>
+                                    <RichTextEditor
                                         value={editForm.data.content_text}
-                                        onChange={(e) => editForm.setData('content_text', e.target.value)}
+                                        onChange={(val) => editForm.setData('content_text', val)}
+                                        placeholder="Write your comprehensive skincare guide, routine tips, ingredient analysis, or recommendations..."
+                                        editorClassName="min-h-[220px] max-h-[400px] [&_.tiptap]:min-h-[200px]"
                                     />
+                                    {editForm.errors.content_text && (
+                                        <p className="text-xs text-red-600">{editForm.errors.content_text}</p>
+                                    )}
                                 </div>
 
                                 <div className="grid gap-4 sm:grid-cols-2 items-center pt-2">
