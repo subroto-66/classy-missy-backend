@@ -27,7 +27,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:6,1')
         ->name('user-password.update');
 
-    Route::inertia('settings/appearance', 'settings/appearance')->name('appearance.edit');
+    Route::get('settings/appearance', [\App\Http\Controllers\Settings\AppearanceController::class, 'edit'])->name('appearance.edit');
+    Route::post('settings/appearance/logo', [\App\Http\Controllers\Settings\AppearanceController::class, 'update'])->name('appearance.logo.update');
+    Route::post('settings/appearance/storefront', [\App\Http\Controllers\Settings\AppearanceController::class, 'updateStorefront'])->name('appearance.storefront.update');
+    Route::post('settings/appearance/theme', [\App\Http\Controllers\Settings\AppearanceController::class, 'updateTheme'])->name('appearance.theme.update');
+    Route::post('settings/appearance/seo', [\App\Http\Controllers\Settings\AppearanceController::class, 'updateSeo'])->name('appearance.seo.update');
+    Route::post('settings/appearance/tracking', [\App\Http\Controllers\Settings\AppearanceController::class, 'updateTracking'])->name('appearance.tracking.update');
 
     // Teams disabled for single-store setup; redirect any direct visits to profile
     Route::redirect('settings/teams', '/settings/profile')->name('teams.index');

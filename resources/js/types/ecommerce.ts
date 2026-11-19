@@ -137,6 +137,9 @@ export type Campaign = {
     eyebrow: string | null;
     description: string | null;
     image: string | null;
+    placement?: 'slider' | 'promo' | 'flash' | 'middle' | 'bottom' | string;
+    link?: string | null;
+    order?: number;
     product_ids: string[] | null;
     discount_percentage: number;
     is_active: boolean;
@@ -165,6 +168,21 @@ export type BlogArticle = {
     key_takeaways?: string[] | null;
     is_published: boolean;
     created_at?: string;
+};
+
+export type Slider = {
+    id: number;
+    title: string | null;
+    subtitle: string | null;
+    badge_text: string | null;
+    button_text: string | null;
+    image: string;
+    image_alt?: string | null;
+    link: string | null;
+    order: number;
+    is_active: boolean;
+    created_at?: string;
+    updated_at?: string;
 };
 
 export type PaginationLink = {

@@ -22,7 +22,7 @@ const sidebarNavItems: NavItem[] = [
         icon: null,
     },
     {
-        title: 'Appearance',
+        title: 'Store Settings & Brand',
         href: editAppearance(),
         icon: null,
     },
@@ -67,8 +67,8 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
 
                 <Separator className="my-6 lg:hidden" />
 
-                <div className="flex-1 md:max-w-2xl">
-                    <section className="max-w-xl space-y-12">
+                <div className="flex-1 min-w-0">
+                    <section className="max-w-4xl space-y-8">
                         {children}
                     </section>
                 </div>

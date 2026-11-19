@@ -27,13 +27,17 @@ class CampaignController extends Controller
             });
         }
 
-        $campaigns = $query->latest()->paginate(10)->withQueryString();
+        if ($request->filled('placement') && $request->input('placement') !== 'all') {
+            $query->where('placement', $request->input('placement'));
+        }
+
+        $campaigns = $query->orderBy('placement', 'asc')->orderBy('order', 'asc')->latest('id')->paginate(12)->withQueryString();
         $products = Product::select(['id', 'slug', 'name'])->get();
 
         return Inertia::render('admin/campaigns/index', [
             'campaigns' => $campaigns,
             'products' => $products,
-            'filters' => $request->only(['search']),
+            'filters' => $request->only(['search', 'placement']),
         ]);
     }
 
@@ -43,8 +47,11 @@ class CampaignController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'eyebrow' => ['nullable', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:500'],
+            'placement' => ['nullable', 'string', 'in:slider,promo,flash,middle,bottom'],
+            'link' => ['nullable', 'string', 'max:500'],
+            'order' => ['nullable', 'integer', 'min:0'],
             'image' => ['nullable'],
-            'image_file' => ['nullable', 'image', 'max:5120'],
+            'image_file' => ['nullable', 'file', 'max:20480'],
             'product_ids' => ['nullable', 'array'],
             'discount_percentage' => ['nullable', 'integer', 'min:0', 'max:100'],
             'is_active' => ['boolean'],
@@ -53,6 +60,12 @@ class CampaignController extends Controller
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
+        while (Campaign::where('slug', $validated['slug'])->exists()) {
+            $validated['slug'] = Str::slug($validated['title']) . '-' . mt_rand(10, 99);
+        }
+
+        $validated['placement'] = $validated['placement'] ?: 'slider';
+        $validated['order'] = isset($validated['order']) ? (int) $validated['order'] : 0;
         $validated['is_active'] = $request->boolean('is_active', true);
 
         if ($request->hasFile('image_file')) {
@@ -80,8 +93,11 @@ class CampaignController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'eyebrow' => ['nullable', 'string', 'max:150'],
             'description' => ['nullable', 'string', 'max:500'],
+            'placement' => ['nullable', 'string', 'in:slider,promo,flash,middle,bottom'],
+            'link' => ['nullable', 'string', 'max:500'],
+            'order' => ['nullable', 'integer', 'min:0'],
             'image' => ['nullable'],
-            'image_file' => ['nullable', 'image', 'max:5120'],
+            'image_file' => ['nullable', 'file', 'max:20480'],
             'product_ids' => ['nullable', 'array'],
             'discount_percentage' => ['nullable', 'integer', 'min:0', 'max:100'],
             'is_active' => ['boolean'],
@@ -90,6 +106,8 @@ class CampaignController extends Controller
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
+        $validated['placement'] = $validated['placement'] ?: ($campaign->placement ?: 'slider');
+        $validated['order'] = isset($validated['order']) ? (int) $validated['order'] : $campaign->order;
         $validated['is_active'] = $request->boolean('is_active', true);
 
         if ($request->hasFile('image_file')) {

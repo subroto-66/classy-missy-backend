@@ -1,10 +1,13 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     Bell,
+    Images,
+    Info,
     LayoutDashboard,
     Megaphone,
     Newspaper,
     Package,
+    Settings,
     ShieldCheck,
     ShoppingBag,
     Sparkles,
@@ -33,6 +36,7 @@ export function AppSidebar() {
     const page = usePage();
     const adminNotifications = page.props.adminNotifications as AdminNotificationsSummary | undefined;
     const unreadCount = adminNotifications?.unread_count || 0;
+    const pendingOrdersCount = (page.props.pendingOrdersCount as number) ?? (adminNotifications?.pending_orders_count ?? 0);
 
     const navItems = [
         {
@@ -50,15 +54,11 @@ export function AppSidebar() {
             badgeColor: 'bg-[#ff4c51] text-white',
         },
         {
-            title: 'Roles & Permissions',
-            href: '/admin/roles',
-            icon: ShieldCheck,
-            dividerBefore: true,
-        },
-        {
-            title: 'Users & Staff',
-            href: '/admin/users',
-            icon: Users,
+            title: 'Orders',
+            href: '/admin/orders',
+            icon: ShoppingBag,
+            badge: pendingOrdersCount > 0 ? String(pendingOrdersCount) : undefined,
+            badgeColor: 'bg-primary/15 text-primary',
         },
         {
             title: 'Products List',
@@ -77,13 +77,6 @@ export function AppSidebar() {
             icon: Sparkles,
         },
         {
-            title: 'Orders',
-            href: '/admin/orders',
-            icon: ShoppingBag,
-            badge: '5',
-            badgeColor: 'bg-primary/15 text-primary',
-        },
-        {
             title: 'Customers',
             href: '/admin/customers',
             icon: UserCheck,
@@ -92,11 +85,39 @@ export function AppSidebar() {
             title: 'Glow Campaigns',
             href: '/admin/campaigns',
             icon: Megaphone,
+            dividerBefore: true,
+        },
+        {
+            title: 'Home Sliders',
+            href: '/admin/sliders',
+            icon: Images,
         },
         {
             title: 'Blogs & Articles',
             href: '/admin/blogs',
             icon: Newspaper,
+        },
+        {
+            title: 'About Us Page',
+            href: '/admin/about',
+            icon: Info,
+        },
+        {
+            title: 'Store Settings & Brand',
+            href: '/settings/appearance',
+            icon: Settings,
+            dividerBefore: true,
+        },
+        {
+            title: 'Roles & Permissions',
+            href: '/admin/roles',
+            icon: ShieldCheck,
+            dividerBefore: true,
+        },
+        {
+            title: 'Users & Staff',
+            href: '/admin/users',
+            icon: Users,
         },
     ];
 

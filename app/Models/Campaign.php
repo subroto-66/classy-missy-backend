@@ -16,6 +16,9 @@ class Campaign extends Model
         'eyebrow',
         'description',
         'image',
+        'placement',
+        'link',
+        'order',
         'product_ids',
         'discount_percentage',
         'is_active',
@@ -28,10 +31,26 @@ class Campaign extends Model
         return [
             'product_ids' => 'array',
             'discount_percentage' => 'integer',
+            'order' => 'integer',
             'is_active' => 'boolean',
             'start_date' => 'date:Y-m-d',
             'end_date' => 'date:Y-m-d',
         ];
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function scopePlacement($query, string $placement)
+    {
+        return $query->where('placement', $placement);
+    }
+
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('order', 'asc')->orderBy('id', 'asc');
     }
 
     protected static function booted(): void

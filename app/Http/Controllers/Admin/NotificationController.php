@@ -23,23 +23,82 @@ class NotificationController extends Controller
     {
         $user = $request->user();
 
-        if ($request->wantsJson()) {
+        if (! $request->header('X-Inertia') && $request->wantsJson()) {
             $summary = $this->notificationService->getNotificationsSummary($user, 20);
             return response()->json([
                 'status' => 'success',
-                'data' => $summary,
+                'data' => [
+                    ...$summary,
+                    'pending_orders_count' => \App\Models\Order::where('status', 'pending')->count(),
+                ],
             ]);
         }
 
         $filter = $request->input('filter', 'all');
-        $data = $this->notificationService->getPaginatedNotifications($user, $filter);
+        $perPage = max(5, min(100, (int) $request->input('per_page', 10)));
+        $data = $this->notificationService->getPaginatedNotifications($user, $filter, $perPage);
 
         return Inertia::render('admin/notifications/index', [
             'notifications' => $data['paginated'],
             'unreadCount' => $data['unread_count'],
             'totalCount' => $data['total_count'],
             'filter' => $filter,
+            'perPage' => $perPage,
         ]);
+    }
+
+    /**
+     * View a notification: mark it as read and redirect to its target link.
+     */
+    public function view(Request $request, string $id): RedirectResponse
+    {
+        $notification = $request->user()->notifications()->where('id', $id)->first();
+
+        if ($notification) {
+            $notification->markAsRead();
+            $link = $notification->data['link'] ?? '/admin/orders';
+            return redirect($link);
+        }
+
+        return redirect('/admin/orders');
+    }
+
+    /**
+     * Mark unread notifications for a specific order as read.
+     */
+    public function markOrderByOrderNumber(Request $request): RedirectResponse|JsonResponse
+    {
+        $orderId = $request->input('order_id');
+        $orderNumber = $request->input('order_number');
+
+        if ($orderId || $orderNumber) {
+            $notifications = $request->user()->unreadNotifications()
+                ->where('data->type', 'order')
+                ->get()
+                ->filter(function ($n) use ($orderId, $orderNumber) {
+                    $metadata = $n->data['metadata'] ?? [];
+                    if ($orderId && isset($metadata['order_id']) && (string) $metadata['order_id'] === (string) $orderId) {
+                        return true;
+                    }
+                    if ($orderNumber && isset($metadata['order_number']) && (string) $metadata['order_number'] === (string) $orderNumber) {
+                        return true;
+                    }
+                    return false;
+                });
+
+            foreach ($notifications as $notification) {
+                $notification->markAsRead();
+            }
+        }
+
+        if (! $request->header('X-Inertia') && $request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'unread_count' => $request->user()->unreadNotifications()->count(),
+            ]);
+        }
+
+        return back();
     }
 
     /**
@@ -53,7 +112,7 @@ class NotificationController extends Controller
             $notification->markAsRead();
         }
 
-        if ($request->wantsJson()) {
+        if (! $request->header('X-Inertia') && $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
                 'unread_count' => $request->user()->unreadNotifications()->count(),
@@ -74,7 +133,7 @@ class NotificationController extends Controller
             $notification->update(['read_at' => null]);
         }
 
-        if ($request->wantsJson()) {
+        if (! $request->header('X-Inertia') && $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
                 'unread_count' => $request->user()->unreadNotifications()->count(),
@@ -91,7 +150,7 @@ class NotificationController extends Controller
     {
         $request->user()->unreadNotifications->markAsRead();
 
-        if ($request->wantsJson()) {
+        if (! $request->header('X-Inertia') && $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
                 'unread_count' => 0,
@@ -108,7 +167,7 @@ class NotificationController extends Controller
     {
         $request->user()->notifications()->update(['read_at' => null]);
 
-        if ($request->wantsJson()) {
+        if (! $request->header('X-Inertia') && $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
                 'unread_count' => $request->user()->notifications()->count(),
@@ -123,8 +182,9 @@ class NotificationController extends Controller
      */
     public function sendTest(Request $request): RedirectResponse|JsonResponse
     {
+        $requestedType = $request->input('type');
         $types = ['order', 'stock', 'customer', 'review'];
-        $type = $types[array_rand($types)];
+        $type = in_array($requestedType, $types) ? $requestedType : $types[array_rand($types)];
         $orderNum = 'CM-' . mt_rand(24000, 25999);
         $amount = mt_rand(1200, 6800);
 
@@ -154,7 +214,7 @@ class NotificationController extends Controller
             actionLabel: 'View Details'
         ));
 
-        if ($request->wantsJson()) {
+        if (! $request->header('X-Inertia') && $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Test unread alert created.',
@@ -176,7 +236,7 @@ class NotificationController extends Controller
             $notification->delete();
         }
 
-        if ($request->wantsJson()) {
+        if (! $request->header('X-Inertia') && $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
                 'unread_count' => $request->user()->unreadNotifications()->count(),
@@ -193,7 +253,7 @@ class NotificationController extends Controller
     {
         $request->user()->readNotifications()->delete();
 
-        if ($request->wantsJson()) {
+        if (! $request->header('X-Inertia') && $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
                 'unread_count' => $request->user()->unreadNotifications()->count(),

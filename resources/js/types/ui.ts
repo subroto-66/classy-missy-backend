@@ -40,4 +40,5 @@ export type AdminNotificationsSummary = {
     unread_count: number;
     total_count: number;
     latest: NotificationItem[];
+    pending_orders_count?: number;
 };

@@ -5,6 +5,8 @@ import {
     Bell,
     Check,
     CheckCheck,
+    ChevronLeft,
+    ChevronRight,
     Clock,
     ExternalLink,
     Filter,
@@ -28,6 +30,7 @@ type Props = {
     unreadCount: number;
     totalCount: number;
     filter?: string;
+    perPage?: number;
 };
 
 function getNotificationIcon(type: NotificationType) {
@@ -69,6 +72,7 @@ export default function NotificationsIndex({
     unreadCount: initialUnreadCount = 0,
     totalCount: initialTotalCount = 0,
     filter: currentFilter = 'all',
+    perPage: initialPerPage = 10,
 }: Props) {
     const list = Array.isArray(notifications) ? notifications : notifications?.data || [];
     const pagination = !Array.isArray(notifications) ? notifications : null;
@@ -76,19 +80,33 @@ export default function NotificationsIndex({
     const [activeFilter, setActiveFilter] = useState(currentFilter);
     const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
     const [items, setItems] = useState<NotificationItem[]>(list);
+    const [perPage, setPerPage] = useState<number>(initialPerPage);
 
     // Keep local state in sync when server props update
     useEffect(() => {
         const fresh = Array.isArray(notifications) ? notifications : notifications?.data || [];
         setItems(fresh);
         setUnreadCount(initialUnreadCount);
-    }, [notifications, initialUnreadCount]);
+        if (initialPerPage) setPerPage(initialPerPage);
+    }, [notifications, initialUnreadCount, initialPerPage]);
 
     const handleFilterChange = (newFilter: string) => {
         setActiveFilter(newFilter);
         router.get(
             '/admin/notifications',
-            { filter: newFilter },
+            { filter: newFilter, per_page: perPage },
+            {
+                preserveState: true,
+                replace: true,
+            }
+        );
+    };
+
+    const handlePerPageChange = (newPerPage: number) => {
+        setPerPage(newPerPage);
+        router.get(
+            '/admin/notifications',
+            { filter: activeFilter, per_page: newPerPage },
             {
                 preserveState: true,
                 replace: true,
@@ -136,7 +154,11 @@ export default function NotificationsIndex({
                 prev.map((n) => (n.id === item.id ? { ...n, read: true, read_at: new Date().toISOString() } : n))
             );
             setUnreadCount((c) => Math.max(0, c - 1));
+        }
 
+        if (item.link) {
+            router.visit(`/admin/notifications/${item.id}/view`);
+        } else if (!item.read) {
             router.patch(
                 `/admin/notifications/${item.id}/read`,
                 {},
@@ -145,10 +167,6 @@ export default function NotificationsIndex({
                     preserveState: true,
                 }
             );
-        }
-
-        if (item.link) {
-            router.visit(item.link);
         }
     };
 
@@ -183,7 +201,7 @@ export default function NotificationsIndex({
     const handleSendTestAlert = () => {
         router.post(
             '/admin/notifications/test',
-            {},
+            { type: 'order' },
             {
                 preserveScroll: true,
             }
@@ -523,30 +541,111 @@ export default function NotificationsIndex({
                 </div>
 
                 {/* Pagination */}
-                {pagination && pagination.last_page > 1 && (
-                    <div className="flex items-center justify-between border-t border-[#dbdade]/60 pt-4 dark:border-[#434968]">
-                        <span className="text-xs text-neutral-500">
-                            Page {pagination.current_page} of {pagination.last_page}
-                        </span>
+                {pagination && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#dbdade]/70 bg-white px-4 py-3 rounded-b-xl shadow-xs dark:border-[#434968] dark:bg-[#2f3349]">
+                        {/* Left: Summary text & Rows per page */}
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[#82808b] dark:text-[#a5a3ae]">
+                            <div>
+                                Showing{' '}
+                                <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                                    {pagination.from ?? 0}
+                                </span>{' '}
+                                to{' '}
+                                <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                                    {pagination.to ?? 0}
+                                </span>{' '}
+                                of{' '}
+                                <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                                    {pagination.total ?? 0}
+                                </span>{' '}
+                                entries
+                            </div>
 
-                        <div className="flex items-center gap-1">
-                            {pagination.links.map((link, idx) => (
-                                <button
-                                    key={idx}
-                                    type="button"
-                                    disabled={!link.url}
-                                    onClick={() => link.url && router.get(link.url)}
-                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                    className={cn(
-                                        'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
-                                        link.active
-                                            ? 'bg-primary text-white'
-                                            : 'text-neutral-600 hover:bg-[#f4f5fb] dark:text-neutral-300 dark:hover:bg-[#353952]',
-                                        !link.url && 'opacity-40 cursor-not-allowed'
-                                    )}
-                                />
-                            ))}
+                            <div className="flex items-center gap-1.5 pl-2 border-l border-neutral-200 dark:border-neutral-700">
+                                <span>Per page:</span>
+                                <select
+                                    value={perPage}
+                                    onChange={(e) => handlePerPageChange(Number(e.target.value))}
+                                    className="h-7 rounded border border-neutral-200 bg-white px-1.5 text-xs font-medium text-neutral-800 shadow-2xs dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                </select>
+                            </div>
                         </div>
+
+                        {/* Right: Pagination Navigation buttons */}
+                        {pagination.links && pagination.links.length > 1 && (
+                            <nav className="flex items-center gap-1" aria-label="Pagination Navigation">
+                                {pagination.links.map((link, index) => {
+                                    const isPrev = index === 0;
+                                    const isNext = index === pagination.links.length - 1;
+                                    const isDisabled = !link.url;
+
+                                    const renderLabel = () => {
+                                        if (isPrev || link.label.includes('&laquo;') || link.label.includes('Previous')) {
+                                            return (
+                                                <span className="flex items-center gap-1">
+                                                    <ChevronLeft className="size-3.5" />
+                                                    <span className="hidden sm:inline">Prev</span>
+                                                </span>
+                                            );
+                                        }
+                                        if (isNext || link.label.includes('&raquo;') || link.label.includes('Next')) {
+                                            return (
+                                                <span className="flex items-center gap-1">
+                                                    <span className="hidden sm:inline">Next</span>
+                                                    <ChevronRight className="size-3.5" />
+                                                </span>
+                                            );
+                                        }
+                                        return <span dangerouslySetInnerHTML={{ __html: link.label }} />;
+                                    };
+
+                                    if (isDisabled) {
+                                        return (
+                                            <span
+                                                key={index}
+                                                aria-disabled="true"
+                                                className={`inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2.5 text-xs font-medium text-neutral-400 opacity-50 dark:text-neutral-500 cursor-not-allowed select-none ${
+                                                    isPrev || isNext ? 'border border-[#dbdade]/50 dark:border-[#434968]' : ''
+                                                }`}
+                                            >
+                                                {renderLabel()}
+                                            </span>
+                                        );
+                                    }
+
+                                    if (link.active) {
+                                        return (
+                                            <span
+                                                key={index}
+                                                aria-current="page"
+                                                className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-primary px-3 text-xs font-semibold text-white shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)]"
+                                            >
+                                                {renderLabel()}
+                                            </span>
+                                        );
+                                    }
+
+                                    return (
+                                        <Link
+                                            key={index}
+                                            href={link.url}
+                                            preserveScroll
+                                            preserveState
+                                            className={`inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2.5 text-xs font-medium text-neutral-600 hover:bg-[#f4f5fb] dark:text-neutral-300 dark:hover:bg-[#353952] transition-colors ${
+                                                isPrev || isNext ? 'border border-[#dbdade]/60 dark:border-[#434968]' : ''
+                                            }`}
+                                        >
+                                            {renderLabel()}
+                                        </Link>
+                                    );
+                                })}
+                            </nav>
+                        )}
                     </div>
                 )}
             </div>

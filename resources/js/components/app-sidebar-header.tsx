@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     Bell,
     CheckCircle2,
@@ -9,6 +9,7 @@ import {
     LayoutGrid,
     Moon,
     Search,
+    Settings,
     ShieldCheck,
     Sun,
     User,
@@ -55,14 +56,34 @@ export function AppSidebarHeader({
             </div>
 
             {/* Right: Quick Actions, Live Storefront & User Profile */}
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
+                {/* View Live Storefront */}
+                <a
+                    href="http://localhost:5173"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#5d596c] hover:text-primary hover:bg-primary/10 transition-colors dark:text-[#cfcde4] dark:hover:bg-[#353952]"
+                    title="Open Live Storefront"
+                >
+                    <Globe className="size-3.5 text-primary" />
+                    <span>Live Store</span>
+                    <ExternalLink className="size-3 text-[#a5a3ae]" />
+                </a>
+
+                {/* Direct Store Settings Link */}
+                <Link
+                    href="/settings/appearance"
+                    className="size-9 rounded-lg flex items-center justify-center text-[#5d596c] hover:text-primary hover:bg-primary/10 transition-colors dark:text-[#cfcde4] dark:hover:bg-[#353952]"
+                    title="Store Settings & Branding"
+                >
+                    <Settings className="size-[18px]" />
+                </Link>
 
                 {/* Theme Brand Color Customizer Dropdown */}
                 <ThemeColorPicker variant="menu" />
 
                 {/* Notifications Dropdown */}
                 <NotificationDropdown />
-
             </div>
         </header>
     );

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BrandController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SliderController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Teams\TeamInvitationController;
 use App\Http\Middleware\EnsureTeamMembership;
@@ -42,9 +44,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Marketing & Content
         Route::resource('campaigns', CampaignController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('blogs', BlogController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('sliders', SliderController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::get('about', [AboutController::class, 'index'])->name('about.index');
+        Route::match(['put', 'post'], 'about', [AboutController::class, 'update'])->name('about.update');
 
         // Notifications
         Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('notifications/{id}/view', [NotificationController::class, 'view'])->name('notifications.view');
+        Route::post('notifications/mark-order-read', [NotificationController::class, 'markOrderByOrderNumber'])->name('notifications.markOrderRead');
         Route::patch('notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
         Route::patch('notifications/{id}/unread', [NotificationController::class, 'markAsUnread'])->name('notifications.unread');
         Route::post('notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');

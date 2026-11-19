@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AboutController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\BrandController;
@@ -10,6 +11,8 @@ use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\SliderController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,6 +45,10 @@ Route::get('/campaigns/{campaign}', [CampaignController::class, 'show']);
 
 Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{blog}', [BlogController::class, 'show']);
+
+Route::get('/sliders', [SliderController::class, 'index']);
+Route::get('/about', [AboutController::class, 'show']);
+Route::get('/settings', [SettingController::class, 'index']);
 
 Route::get('/coupons', [CouponController::class, 'index']);
 Route::post('/coupons/apply', [CouponController::class, 'apply']);

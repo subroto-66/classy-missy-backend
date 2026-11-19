@@ -1,22 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
     Bell,
     Check,
     CheckCheck,
+    ChevronLeft,
+    ChevronRight,
     Clock,
     ExternalLink,
     Mail,
     Newspaper,
     Package,
     ShoppingBag,
+    Sparkles,
     Star,
     Trash2,
     UserCheck,
+    Volume2,
+    VolumeX,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -59,6 +64,42 @@ function getNotificationBadgeStyle(type: NotificationType) {
     }
 }
 
+/**
+ * Melodic 3-tone notification chime synthesized via Web Audio API.
+ * High fidelity and 100% self-contained (no external audio assets needed).
+ */
+function playNotificationChime() {
+    try {
+        const AudioContextClass =
+            window.AudioContext ||
+            (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        if (!AudioContextClass) return;
+        const ctx = new AudioContextClass();
+        const now = ctx.currentTime;
+
+        const notes = [
+            { freq: 1046.5, time: 0, duration: 0.22 },     // C6
+            { freq: 1318.51, time: 0.11, duration: 0.22 },   // E6
+            { freq: 1567.98, time: 0.22, duration: 0.45 },   // G6
+        ];
+
+        notes.forEach(({ freq, time, duration }) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + time);
+            gain.gain.setValueAtTime(0.18, now + time);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + time + duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + time);
+            osc.stop(now + time + duration);
+        });
+    } catch {
+        // Silently catch audio context autoplay restrictions
+    }
+}
+
 export function NotificationDropdown() {
     const page = usePage();
     const adminNotifications = page.props.adminNotifications as AdminNotificationsSummary | undefined;
@@ -68,13 +109,144 @@ export function NotificationDropdown() {
     const [items, setItems] = useState<NotificationItem[]>(adminNotifications?.latest || []);
     const [unreadCount, setUnreadCount] = useState<number>(adminNotifications?.unread_count || 0);
 
+    // Audio enabled state saved in localStorage
+    const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('classy_admin_sound_enabled') !== 'false';
+        }
+        return true;
+    });
+
+    // Track known notification IDs to only trigger sound/toast on genuinely new arrivals
+    const knownIdsRef = useRef<Set<string>>(
+        new Set((adminNotifications?.latest || []).map((n) => n.id))
+    );
+
     // Keep state in sync with Inertia shared props
     useEffect(() => {
         if (adminNotifications) {
             setItems(adminNotifications.latest || []);
             setUnreadCount(adminNotifications.unread_count || 0);
+            (adminNotifications.latest || []).forEach((n) => knownIdsRef.current.add(n.id));
         }
     }, [adminNotifications]);
+
+    // Live background polling for orders and notifications every 12 seconds
+    useEffect(() => {
+        let isMounted = true;
+
+        const checkLatestNotifications = async () => {
+            try {
+                const res = await fetch('/admin/notifications', {
+                    headers: {
+                        Accept: 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                if (!res.ok) return;
+                const json = await res.json();
+                if (!isMounted || json.status !== 'success' || !json.data) return;
+
+                const latest: NotificationItem[] = json.data.latest || [];
+                const freshUnreadCount: number = json.data.unread_count ?? 0;
+
+                // Detect brand new notifications not previously in memory
+                const newArrivals = latest.filter((item) => !knownIdsRef.current.has(item.id));
+
+                if (newArrivals.length > 0) {
+                    newArrivals.forEach((item) => knownIdsRef.current.add(item.id));
+
+                    // Check for order notifications
+                    const newOrder = newArrivals.find((item) => item.type === 'order');
+                    if (newOrder) {
+                        if (soundEnabled) {
+                            playNotificationChime();
+                        }
+                        toast.success(`🛒 ${newOrder.title}`, {
+                            description: newOrder.message,
+                            action: {
+                                label: 'View Orders',
+                                onClick: () => router.visit(`/admin/notifications/${newOrder.id}/view`),
+                            },
+                            duration: 10000,
+                        });
+
+                        // If user is currently looking at /admin/orders, reload orders automatically
+                        if (window.location.pathname.includes('/admin/orders')) {
+                            router.reload({
+                                only: ['orders', 'pendingOrdersCount'],
+                                preserveScroll: true,
+                                preserveState: true,
+                            });
+                        }
+                    } else {
+                        const firstUnread = newArrivals.find((n) => !n.read);
+                        if (firstUnread) {
+                            toast.info(firstUnread.title, {
+                                description: firstUnread.message,
+                                duration: 6000,
+                            });
+                        }
+                    }
+
+                    setItems(latest);
+                    setUnreadCount(freshUnreadCount);
+
+                    // Sync shared props for sidebar badge updates
+                    router.reload({
+                        only: ['adminNotifications', 'pendingOrdersCount'],
+                        preserveScroll: true,
+                        preserveState: true,
+                    });
+                } else if (freshUnreadCount !== unreadCount) {
+                    setUnreadCount(freshUnreadCount);
+                    setItems(latest);
+                }
+            } catch {
+                // Background polling errors are non-critical
+            }
+        };
+
+        const interval = setInterval(checkLatestNotifications, 12000);
+        return () => {
+            isMounted = false;
+            clearInterval(interval);
+        };
+    }, [soundEnabled, unreadCount]);
+
+    const toggleSound = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const next = !soundEnabled;
+        setSoundEnabled(next);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('classy_admin_sound_enabled', String(next));
+        }
+        if (next) {
+            playNotificationChime();
+            toast.success('Order notification sound turned ON');
+        } else {
+            toast.info('Order notification sound muted');
+        }
+    };
+
+    const handleSendTestOrderAlert = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (soundEnabled) {
+            playNotificationChime();
+        }
+        router.post(
+            '/admin/notifications/test',
+            { type: 'order' },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                onSuccess: () => {
+                    toast.success('Test order alert generated! Check the chime & badge.');
+                },
+            }
+        );
+    };
 
     const handleMarkAsRead = (item: NotificationItem) => {
         if (!item.read) {
@@ -82,7 +254,13 @@ export function NotificationDropdown() {
                 prev.map((n) => (n.id === item.id ? { ...n, read: true, read_at: new Date().toISOString() } : n))
             );
             setUnreadCount((c) => Math.max(0, c - 1));
+        }
 
+        setOpen(false);
+
+        if (item.link) {
+            router.visit(`/admin/notifications/${item.id}/view`);
+        } else if (!item.read) {
             router.patch(
                 `/admin/notifications/${item.id}/read`,
                 {},
@@ -91,11 +269,6 @@ export function NotificationDropdown() {
                     preserveState: true,
                 }
             );
-        }
-
-        if (item.link) {
-            setOpen(false);
-            router.visit(item.link);
         }
     };
 
@@ -174,12 +347,23 @@ export function NotificationDropdown() {
         });
     };
 
+    const [pageNumber, setPageNumber] = useState(1);
+    const pageSize = 5;
+
     const filteredItems = items.filter((item) => {
         if (filter === 'unread') return !item.read;
         if (filter === 'orders') return item.type === 'order';
         if (filter === 'alerts') return item.type === 'stock' || item.type === 'system' || item.type === 'review';
         return true;
     });
+
+    const totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize));
+    const paginatedItems = filteredItems.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+
+    const handleSetFilter = (newFilter: 'all' | 'unread' | 'orders' | 'alerts') => {
+        setFilter(newFilter);
+        setPageNumber(1);
+    };
 
     return (
         <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -220,13 +404,39 @@ export function NotificationDropdown() {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
+                        {/* Audio Chime Mute/Unmute Toggle */}
+                        <button
+                            type="button"
+                            onClick={toggleSound}
+                            title={soundEnabled ? 'Order sound is ON (click to mute)' : 'Order sound is MUTED (click to turn ON)'}
+                            className={cn(
+                                'flex items-center justify-center size-7 rounded-md transition-colors',
+                                soundEnabled
+                                    ? 'text-primary bg-primary/10 hover:bg-primary/20'
+                                    : 'text-neutral-400 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800'
+                            )}
+                        >
+                            {soundEnabled ? <Volume2 className="size-3.5" /> : <VolumeX className="size-3.5" />}
+                        </button>
+
+                        {/* Test Order Trigger */}
+                        <button
+                            type="button"
+                            onClick={handleSendTestOrderAlert}
+                            title="Test live order notification chime & popup"
+                            className="flex items-center gap-1 text-[11px] font-medium text-amber-600 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/50 px-2 py-1 rounded-md transition-colors"
+                        >
+                            <Sparkles className="size-3" />
+                            <span>Test</span>
+                        </button>
+
                         {unreadCount > 0 ? (
                             <button
                                 type="button"
                                 onClick={handleMarkAllRead}
                                 title="Mark all as read"
-                                className="flex items-center gap-1 text-[11px] font-medium text-primary hover:underline transition-all"
+                                className="flex items-center gap-1 text-[11px] font-medium text-primary hover:underline transition-all ml-1"
                             >
                                 <CheckCheck className="size-3.5" />
                                 <span>Mark read</span>
@@ -236,7 +446,7 @@ export function NotificationDropdown() {
                                 type="button"
                                 onClick={handleMarkAllUnread}
                                 title="Mark all as unread"
-                                className="flex items-center gap-1 text-[11px] font-medium text-neutral-500 hover:text-primary transition-all"
+                                className="flex items-center gap-1 text-[11px] font-medium text-neutral-500 hover:text-primary transition-all ml-1"
                             >
                                 <Mail className="size-3.5" />
                                 <span>Mark unread</span>
@@ -251,7 +461,7 @@ export function NotificationDropdown() {
                         <button
                             key={tab}
                             type="button"
-                            onClick={() => setFilter(tab)}
+                            onClick={() => handleSetFilter(tab)}
                             className={cn(
                                 'rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors',
                                 filter === tab
@@ -275,11 +485,11 @@ export function NotificationDropdown() {
                                 No {filter !== 'all' ? filter : ''} notifications
                             </p>
                             <p className="mt-1 text-xs text-neutral-400 max-w-[200px]">
-                                We will alert you whenever new orders, customer signups, or stock updates happen.
+                                We will alert you with chime & badge whenever new orders or customer updates happen.
                             </p>
                         </div>
                     ) : (
-                        filteredItems.map((item) => (
+                        paginatedItems.map((item) => (
                             <div
                                 key={item.id}
                                 onClick={() => handleMarkAsRead(item)}
@@ -370,6 +580,46 @@ export function NotificationDropdown() {
                         ))
                     )}
                 </div>
+
+                {/* Dropdown Mini Pagination Bar */}
+                {filteredItems.length > 0 && (
+                    <div className="flex items-center justify-between border-t border-[#dbdade]/50 dark:border-[#434968]/60 px-4 py-2 bg-[#fdfdfd] dark:bg-[#282b3d] text-[11px] text-neutral-500 dark:text-neutral-400">
+                        <span>
+                            Showing {(pageNumber - 1) * pageSize + 1}–{Math.min(pageNumber * pageSize, filteredItems.length)} of {filteredItems.length}
+                        </span>
+                        {totalPages > 1 && (
+                            <div className="flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    disabled={pageNumber === 1}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setPageNumber((p) => Math.max(1, p - 1));
+                                    }}
+                                    className="flex size-6 items-center justify-center rounded border border-[#dbdade]/60 dark:border-[#434968] hover:bg-neutral-100 dark:hover:bg-[#353952] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                    title="Previous page"
+                                >
+                                    <ChevronLeft className="size-3" />
+                                </button>
+                                <span className="font-semibold text-neutral-700 dark:text-neutral-200 px-1">
+                                    {pageNumber}/{totalPages}
+                                </span>
+                                <button
+                                    type="button"
+                                    disabled={pageNumber >= totalPages}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setPageNumber((p) => Math.min(totalPages, p + 1));
+                                    }}
+                                    className="flex size-6 items-center justify-center rounded border border-[#dbdade]/60 dark:border-[#434968] hover:bg-neutral-100 dark:hover:bg-[#353952] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                    title="Next page"
+                                >
+                                    <ChevronRight className="size-3" />
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Footer */}
                 <div className="flex items-center justify-between border-t border-[#dbdade]/60 px-4 py-2.5 bg-[#f8f7fa] dark:bg-[#25293c] dark:border-[#434968]">

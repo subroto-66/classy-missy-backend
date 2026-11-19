@@ -56,7 +56,15 @@ class HandleInertiaRequests extends Middleware
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
+            'pendingOrdersCount' => fn () => \App\Models\Order::where('status', 'pending')->count(),
             'adminNotifications' => fn () => $user ? app(\App\Services\AdminNotificationService::class)->getNotificationsSummary($user) : null,
+            'appBranding' => fn () => [
+                'logo' => \App\Models\Setting::get('admin_logo', '/logo.svg'),
+                'logo_dark' => \App\Models\Setting::get('admin_logo_dark', null),
+                'favicon' => \App\Models\Setting::get('favicon', '/favicon.svg'),
+                'title' => \App\Models\Setting::get('admin_title', 'Classy Missy'),
+                'subtitle' => \App\Models\Setting::get('admin_subtitle', 'Admin Panel'),
+            ],
         ];
     }
 }

@@ -8,16 +8,30 @@ use App\Models\Campaign;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class CampaignController extends Controller
 {
     /**
-     * Display a listing of campaigns.
+     * Display a listing of active campaigns.
      */
     public function index(Request $request): JsonResponse
     {
-        $campaigns = Campaign::where('is_active', true)->latest()->get()->map(function ($camp) {
+        $query = Campaign::where('is_active', true);
+
+        if ($placement = $request->input('placement')) {
+            $query->where('placement', $placement);
+        }
+
+        $campaigns = $query->orderBy('order', 'asc')->latest('id')->get()->map(function ($camp) {
             $productIds = is_array($camp->product_ids) ? $camp->product_ids : [];
+
+            $imageUrl = $camp->image;
+            if (!empty($imageUrl) && !Str::startsWith($imageUrl, ['http://', 'https://', '//', 'data:'])) {
+                $imageUrl = url($imageUrl);
+            }
+
+            $destinationLink = $camp->link ?: "/products?campaign={$camp->slug}";
 
             return [
                 'id' => $camp->id,
@@ -25,12 +39,17 @@ class CampaignController extends Controller
                 'slug' => $camp->slug,
                 'eyebrow' => $camp->eyebrow,
                 'description' => $camp->description,
-                'image' => $camp->image,
+                'image' => $imageUrl,
+                'image_raw' => $camp->image,
+                'placement' => $camp->placement ?: 'slider',
+                'link' => $destinationLink,
+                'href' => $destinationLink,
+                'order' => (int) $camp->order,
                 'discount_percentage' => (int) $camp->discount_percentage,
                 'productIds' => $productIds,
                 'product_ids' => $productIds,
-                'start_date' => $camp->start_date,
-                'end_date' => $camp->end_date,
+                'start_date' => $camp->start_date ? $camp->start_date->format('Y-m-d') : null,
+                'end_date' => $camp->end_date ? $camp->end_date->format('Y-m-d') : null,
             ];
         });
 
@@ -59,13 +78,22 @@ class CampaignController extends Controller
         }
 
         $productIds = is_array($campaign->product_ids) ? $campaign->product_ids : [];
-        $products = Product::with(['brand', 'category'])
-            ->where('is_active', true)
-            ->where(function ($q) use ($productIds) {
-                $q->whereIn('slug', $productIds)
-                  ->orWhereIn('id', $productIds);
-            })
-            ->get();
+        $products = collect();
+
+        if (!empty($productIds)) {
+            $products = Product::with(['brand', 'category'])
+                ->where('is_active', true)
+                ->where(function ($q) use ($productIds) {
+                    $q->whereIn('id', $productIds)
+                      ->orWhereIn('slug', $productIds);
+                })
+                ->get();
+        }
+
+        $imageUrl = $campaign->image;
+        if (!empty($imageUrl) && !Str::startsWith($imageUrl, ['http://', 'https://', '//', 'data:'])) {
+            $imageUrl = url($imageUrl);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -75,13 +103,16 @@ class CampaignController extends Controller
                 'slug' => $campaign->slug,
                 'eyebrow' => $campaign->eyebrow,
                 'description' => $campaign->description,
-                'image' => $campaign->image,
+                'image' => $imageUrl,
+                'image_raw' => $campaign->image,
+                'placement' => $campaign->placement ?: 'slider',
+                'link' => $campaign->link ?: "/products?campaign={$campaign->slug}",
+                'href' => $campaign->link ?: "/products?campaign={$campaign->slug}",
+                'order' => (int) $campaign->order,
                 'discount_percentage' => (int) $campaign->discount_percentage,
-                'productIds' => $productIds,
-                'product_ids' => $productIds,
-                'start_date' => $campaign->start_date,
-                'end_date' => $campaign->end_date,
                 'products' => ProductResource::collection($products),
+                'start_date' => $campaign->start_date ? $campaign->start_date->format('Y-m-d') : null,
+                'end_date' => $campaign->end_date ? $campaign->end_date->format('Y-m-d') : null,
             ],
         ]);
     }

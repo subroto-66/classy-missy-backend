@@ -51,6 +51,19 @@ export default function OrdersIndex({ orders, filters = {} }: Props) {
     const [viewingOrder, setViewingOrder] = useState<Order | null>(null);
     const [deletingOrder, setDeletingOrder] = useState<Order | null>(null);
 
+    const handleViewOrder = (order: Order) => {
+        setViewingOrder(order);
+        router.post(
+            '/admin/notifications/mark-order-read',
+            { order_id: order.id, order_number: order.order_number },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                only: ['adminNotifications', 'pendingOrdersCount'],
+            }
+        );
+    };
+
     const statusForm = useForm({
         status: '',
         payment_status: '',
@@ -244,7 +257,7 @@ export default function OrdersIndex({ orders, filters = {} }: Props) {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => setViewingOrder(o)}
+                                    onClick={() => handleViewOrder(o)}
                                     className="h-8 px-2.5 text-xs flex items-center gap-1"
                                 >
                                     <Eye className="size-3" />

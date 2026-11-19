@@ -46,7 +46,7 @@ class AdminNotificationService
      *
      * @return array<string, mixed>
      */
-    public function getNotificationsSummary(User $user, int $limit = 10): array
+    public function getNotificationsSummary(User $user, int $limit = 30): array
     {
         $this->ensureInitialNotifications($user);
 
@@ -73,7 +73,7 @@ class AdminNotificationService
      *
      * @return array<string, mixed>
      */
-    public function getPaginatedNotifications(User $user, ?string $filter = null, int $perPage = 15): array
+    public function getPaginatedNotifications(User $user, ?string $filter = null, int $perPage = 10): array
     {
         $this->ensureInitialNotifications($user);
 
