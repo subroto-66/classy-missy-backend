@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\LandingPageController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
@@ -45,6 +46,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('campaigns', CampaignController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('blogs', BlogController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('sliders', SliderController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('landing-pages', LandingPageController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::get('about', [AboutController::class, 'index'])->name('about.index');
         Route::match(['put', 'post'], 'about', [AboutController::class, 'update'])->name('about.update');
 

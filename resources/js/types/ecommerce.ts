@@ -185,6 +185,53 @@ export type Slider = {
     updated_at?: string;
 };
 
+export type LandingPagePackage = {
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+    old_price: number;
+    tag?: string;
+    free_delivery: boolean;
+    popular: boolean;
+};
+
+export type LandingPage = {
+    id: number;
+    product_id: number | null;
+    product?: Product | null;
+    title: string;
+    slug: string;
+    badge: string | null;
+    hotline: string | null;
+    whatsapp: string | null;
+    announcement_text: string | null;
+    countdown_enabled: boolean;
+    countdown_hours: number;
+    headline: string | null;
+    subheadline: string | null;
+    hero_description: string | null;
+    video_url: string | null;
+    banner_image: string | null;
+    gallery_images: string[] | null;
+    packages: LandingPagePackage[] | null;
+    delivery_inside_dhaka: number;
+    delivery_outside_dhaka: number;
+    features: { title: string; desc: string; icon: string }[] | null;
+    benefits: { title: string; desc: string; icon: string }[] | null;
+    steps: { step: string; title: string; desc: string }[] | null;
+    reviews: { name: string; location: string; comment: string; rating: number; date: string }[] | null;
+    faqs: { q: string; a: string }[] | null;
+    guarantee_text: string | null;
+    is_active: boolean;
+    is_default_for_product: boolean;
+    order: number;
+    meta_title: string | null;
+    meta_description: string | null;
+    created_at?: string;
+    updated_at?: string;
+};
+
 export type PaginationLink = {
     url: string | null;
     label: string;

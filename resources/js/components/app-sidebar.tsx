@@ -7,6 +7,7 @@ import {
     Megaphone,
     Newspaper,
     Package,
+    Rocket,
     Settings,
     ShieldCheck,
     ShoppingBag,
@@ -91,6 +92,13 @@ export function AppSidebar() {
             title: 'Home Sliders',
             href: '/admin/sliders',
             icon: Images,
+        },
+        {
+            title: 'Landing Pages',
+            href: '/admin/landing-pages',
+            icon: Rocket,
+            badge: 'Funnel',
+            badgeColor: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
         },
         {
             title: 'Blogs & Articles',

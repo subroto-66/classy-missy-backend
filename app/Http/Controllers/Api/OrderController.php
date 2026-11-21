@@ -84,7 +84,7 @@ class OrderController extends Controller
     {
         $request->validate([
             'customer_name' => 'required|string|max:150',
-            'customer_email' => 'required|email|max:150',
+            'customer_email' => 'nullable|email|max:150',
             'customer_phone' => 'nullable|string|max:30',
             'shipping_address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:100',
@@ -99,15 +99,24 @@ class OrderController extends Controller
         return DB::transaction(function () use ($request) {
             $user = $request->user() ?: auth('sanctum')->user();
 
-            $customerEmail = strtolower(trim($request->customer_email));
-            $customerName = trim($request->customer_name);
             $customerPhone = trim($request->customer_phone ?: ($user?->phone ?: '01700000000'));
+            $cleanPhone = preg_replace('/\D/', '', $customerPhone) ?: '01700000000';
+            $customerEmail = $request->filled('customer_email')
+                ? strtolower(trim($request->customer_email))
+                : ($user?->email ?: "guest_{$cleanPhone}@order.classymissy.com");
+            $customerName = trim($request->customer_name);
             $shippingAddress = trim($request->shipping_address ?: 'Standard Delivery, Dhaka');
             $city = trim($request->input('city', 'Dhaka') ?: 'Dhaka');
             $postalCode = $request->postal_code;
 
             // Find or create customer
-            $customer = Customer::where('email', $customerEmail)->first();
+            $customer = null;
+            if ($request->filled('customer_email') || $user?->email) {
+                $customer = Customer::where('email', $customerEmail)->first();
+            }
+            if (!$customer && $customerPhone) {
+                $customer = Customer::where('phone', $customerPhone)->first();
+            }
             if (!$customer && $user) {
                 $customer = Customer::where('user_id', $user->id)->first();
             }

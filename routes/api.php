@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\CampaignController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CouponController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\LandingPageController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ReviewController;
@@ -47,6 +48,8 @@ Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{blog}', [BlogController::class, 'show']);
 
 Route::get('/sliders', [SliderController::class, 'index']);
+Route::get('/landing-pages', [LandingPageController::class, 'index']);
+Route::get('/landing-pages/{slugOrProduct}', [LandingPageController::class, 'show']);
 Route::get('/about', [AboutController::class, 'show']);
 Route::get('/settings', [SettingController::class, 'index']);
 
