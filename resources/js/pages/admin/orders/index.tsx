@@ -53,15 +53,21 @@ export default function OrdersIndex({ orders, filters = {} }: Props) {
 
     const handleViewOrder = (order: Order) => {
         setViewingOrder(order);
-        router.post(
-            '/admin/notifications/mark-order-read',
-            { order_id: order.id, order_number: order.order_number },
-            {
-                preserveScroll: true,
-                preserveState: true,
-                only: ['adminNotifications', 'pendingOrdersCount'],
-            }
-        );
+        try {
+            const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
+            fetch('/admin/notifications/mark-order-read', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    ...(csrfToken ? { 'X-CSRF-TOKEN': csrfToken } : {}),
+                },
+                body: JSON.stringify({ order_id: order.id, order_number: order.order_number }),
+            }).catch(() => {});
+        } catch {
+            // Ignore background network error
+        }
     };
 
     const statusForm = useForm({

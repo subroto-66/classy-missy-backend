@@ -48,8 +48,6 @@ class AdminNotificationService
      */
     public function getNotificationsSummary(User $user, int $limit = 30): array
     {
-        $this->ensureInitialNotifications($user);
-
         $unreadCount = $user->unreadNotifications()->count();
         $totalCount = $user->notifications()->count();
 
@@ -75,8 +73,6 @@ class AdminNotificationService
      */
     public function getPaginatedNotifications(User $user, ?string $filter = null, int $perPage = 10): array
     {
-        $this->ensureInitialNotifications($user);
-
         $query = $user->notifications()->latest();
 
         if ($filter === 'unread') {

@@ -103,6 +103,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
         countdown_hours: 4,
         headline: '',
         subheadline: '',
+        description: '',
         hero_description: '',
         video_url: '',
         banner_image: '',
@@ -130,6 +131,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
         countdown_hours: 4,
         headline: '',
         subheadline: '',
+        description: '',
         hero_description: '',
         video_url: '',
         banner_image: '',
@@ -160,6 +162,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
             countdown_hours: 4,
             headline: products[0]?.name ? `${products[0].name} (স্পেশাল অফার)` : 'Exclusive Product Offer',
             subheadline: '১০০% অরিজিনাল ও প্রিমিয়াম কোয়ালিটি নিশ্চয়তা',
+            description: products[0]?.description || '',
             hero_description: 'সরাসরি প্রস্তুতকারক থেকে সংগৃহীত শতভাগ খাঁটি ও পরীক্ষিত পণ্য। সারা দেশে ক্যাশ অন হোম ডেলিভারি।',
             video_url: '',
             banner_image: products[0]?.image || '',
@@ -191,6 +194,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
             countdown_hours: page.countdown_hours || 4,
             headline: page.headline || '',
             subheadline: page.subheadline || '',
+            description: page.description || page.product?.description || '',
             hero_description: page.hero_description || '',
             video_url: page.video_url || '',
             banner_image: page.banner_image || '',
@@ -521,6 +525,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
                                                     product_id: pId,
                                                     headline: sel?.name || prev.headline,
                                                     banner_image: sel?.image || prev.banner_image,
+                                                    description: sel?.description || prev.description,
                                                 }));
                                             }}
                                             className="w-full text-sm rounded-lg border border-neutral-300 bg-white p-2 dark:border-neutral-700 dark:bg-neutral-800"
@@ -598,15 +603,30 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="create-desc">Hero Description</Label>
+                                    <Label htmlFor="create-desc">Hero Short Description</Label>
                                     <textarea
                                         id="create-desc"
-                                        rows={3}
+                                        rows={2}
                                         className="w-full text-sm rounded-lg border border-neutral-300 p-2.5 dark:border-neutral-700 dark:bg-neutral-800"
                                         value={createForm.data.hero_description}
                                         onChange={(e) => createForm.setData('hero_description', e.target.value)}
                                         placeholder="কোনো ধরনের কেমিক্যাল, চিনি বা ভেজাল ছাড়া সরাসরি সংগৃহীত..."
                                     />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="create-full-desc">Product Detailed Description (পণ্যের বিস্তারিত বিবরণ)</Label>
+                                    <textarea
+                                        id="create-full-desc"
+                                        rows={4}
+                                        className="w-full text-sm rounded-lg border border-neutral-300 p-2.5 dark:border-neutral-700 dark:bg-neutral-800"
+                                        value={createForm.data.description}
+                                        onChange={(e) => createForm.setData('description', e.target.value)}
+                                        placeholder="ল্যান্ডিং পেজে প্রদর্শনের জন্য পণ্যের বিস্তারিত বিবরণ লিখুন..."
+                                    />
+                                    <p className="text-[11px] text-neutral-500">
+                                        ল্যান্ডিং পেজে "পণ্যের বিস্তারিত বিবরণ" সেকশনে প্রদর্শিত হবে। ফাঁকা রাখলে পণ্যের মূল বিবরণী স্বয়ংক্রিয়ভাবে ব্যবহৃত হবে।
+                                    </p>
                                 </div>
 
                                 <SingleImageUpload
@@ -951,14 +971,29 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="edit-desc">Hero Description</Label>
+                                    <Label htmlFor="edit-desc">Hero Short Description</Label>
                                     <textarea
                                         id="edit-desc"
-                                        rows={3}
+                                        rows={2}
                                         className="w-full text-sm rounded-lg border border-neutral-300 p-2.5 dark:border-neutral-700 dark:bg-neutral-800"
                                         value={editForm.data.hero_description}
                                         onChange={(e) => editForm.setData('hero_description', e.target.value)}
                                     />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="edit-full-desc">Product Detailed Description (পণ্যের বিস্তারিত বিবরণ)</Label>
+                                    <textarea
+                                        id="edit-full-desc"
+                                        rows={4}
+                                        className="w-full text-sm rounded-lg border border-neutral-300 p-2.5 dark:border-neutral-700 dark:bg-neutral-800"
+                                        value={editForm.data.description}
+                                        onChange={(e) => editForm.setData('description', e.target.value)}
+                                        placeholder="ল্যান্ডিং পেজে প্রদর্শনের জন্য পণ্যের বিস্তারিত বিবরণ লিখুন..."
+                                    />
+                                    <p className="text-[11px] text-neutral-500">
+                                        ল্যান্ডিং পেজে "পণ্যের বিস্তারিত বিবরণ" সেকশনে প্রদর্শিত হবে। ফাঁকা রাখলে পণ্যের মূল বিবরণী স্বয়ংক্রিয়ভাবে ব্যবহৃত হবে।
+                                    </p>
                                 </div>
 
                                 <SingleImageUpload

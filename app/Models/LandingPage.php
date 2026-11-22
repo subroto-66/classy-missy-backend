@@ -22,6 +22,7 @@ class LandingPage extends Model
         'countdown_hours',
         'headline',
         'subheadline',
+        'description',
         'hero_description',
         'video_url',
         'banner_image',

@@ -218,6 +218,7 @@ export default function NotificationsIndex({
         router.delete(`/admin/notifications/${id}`, {
             preserveScroll: true,
             preserveState: true,
+            only: ['notifications', 'unreadCount', 'totalCount', 'adminNotifications'],
         });
     };
 
@@ -225,8 +226,23 @@ export default function NotificationsIndex({
         setItems((prev) => prev.filter((n) => !n.read));
 
         router.delete('/admin/notifications/clear-all', {
+            data: { scope: 'read' },
             preserveScroll: true,
             preserveState: true,
+            only: ['notifications', 'unreadCount', 'totalCount', 'adminNotifications'],
+        });
+    };
+
+    const handleClearAllNotifications = () => {
+        if (!confirm('Are you sure you want to delete all notifications?')) return;
+        setItems([]);
+        setUnreadCount(0);
+
+        router.delete('/admin/notifications/clear-all', {
+            data: { scope: 'all' },
+            preserveScroll: true,
+            preserveState: true,
+            only: ['notifications', 'unreadCount', 'totalCount', 'adminNotifications'],
         });
     };
 
@@ -298,10 +314,21 @@ export default function NotificationsIndex({
                             variant="outline"
                             size="sm"
                             onClick={handleClearAllRead}
-                            className="flex items-center gap-1.5 text-xs text-neutral-600 hover:text-red-600 hover:border-red-300 dark:text-neutral-300"
+                            className="flex items-center gap-1.5 text-xs text-neutral-600 hover:text-amber-600 hover:border-amber-300 dark:text-neutral-300"
                         >
                             <Trash2 className="size-3.5" />
                             <span>Clear Read</span>
+                        </Button>
+
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleClearAllNotifications}
+                            className="flex items-center gap-1.5 text-xs text-red-600 border-red-200 hover:bg-red-50 dark:border-red-900/40 dark:hover:bg-red-950/30"
+                        >
+                            <Trash2 className="size-3.5" />
+                            <span>Clear All</span>
                         </Button>
                     </div>
                 </div>

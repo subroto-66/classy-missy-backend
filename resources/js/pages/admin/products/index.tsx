@@ -42,6 +42,17 @@ type Props = {
     };
 };
 
+const HIGHLIGHT_PRESETS = [
+    { id: 'leaf', label: '🌿 Natural / Herbal', url: 'https://img.icons8.com/fluency/96/leaf.png' },
+    { id: 'water', label: '💧 Hydration / Moisture', url: 'https://img.icons8.com/fluency/96/water.png' },
+    { id: 'sparkle', label: '✨ Radiance / Glow', url: 'https://img.icons8.com/fluency/96/sparkling.png' },
+    { id: 'heart', label: '❤️ Care / Gentle', url: 'https://img.icons8.com/fluency/96/heart-with-pulse.png' },
+    { id: 'sun', label: '☀️ Day / Protection', url: 'https://img.icons8.com/fluency/96/sun.png' },
+    { id: 'shield', label: '🛡️ Pure / Safe', url: 'https://img.icons8.com/fluency/96/shield.png' },
+    { id: 'check', label: '✅ Tested / Certified', url: 'https://img.icons8.com/fluency/96/checkmark.png' },
+    { id: 'star', label: '⭐ Top Quality', url: 'https://img.icons8.com/fluency/96/star.png' },
+];
+
 export default function ProductsIndex({
     products,
     categories = [],
@@ -79,6 +90,7 @@ export default function ProductsIndex({
         gallery_files: File[];
         description: string;
         problems: string;
+        highlights: Array<{ title: string; image: string }>;
         is_active: boolean;
         is_featured: boolean;
     }>({
@@ -97,6 +109,11 @@ export default function ProductsIndex({
         gallery_files: [],
         description: '',
         problems: 'Sensitive skin, Radiance',
+        highlights: [
+            { title: 'Gentle exfoliation', image: HIGHLIGHT_PRESETS[0].url },
+            { title: 'Smooth-looking', image: HIGHLIGHT_PRESETS[2].url },
+            { title: 'Easy routine', image: HIGHLIGHT_PRESETS[1].url },
+        ],
         is_active: true,
         is_featured: false,
     });
@@ -118,6 +135,7 @@ export default function ProductsIndex({
         gallery_files: File[];
         description: string;
         problems: string;
+        highlights: Array<{ title: string; image: string }>;
         is_active: boolean;
         is_featured: boolean;
         _method?: string;
@@ -138,6 +156,7 @@ export default function ProductsIndex({
         gallery_files: [],
         description: '',
         problems: '',
+        highlights: [],
         is_active: true,
         is_featured: false,
     });
@@ -180,6 +199,9 @@ export default function ProductsIndex({
             gallery_files: [],
             description: p.description || '',
             problems: Array.isArray(p.problems) ? p.problems.join(', ') : '',
+            highlights: Array.isArray(p.highlights) && p.highlights.length > 0
+                ? p.highlights.map((h) => ({ title: h.title || '', image: h.image || HIGHLIGHT_PRESETS[0].url }))
+                : [],
             is_active: p.is_active,
             is_featured: p.is_featured,
         });
@@ -190,10 +212,12 @@ export default function ProductsIndex({
         const problemsArray = createForm.data.problems
             ? createForm.data.problems.split(',').map((s) => s.trim()).filter(Boolean)
             : [];
+        const validHighlights = createForm.data.highlights.filter((h) => h.title.trim().length > 0);
 
         createForm.transform((data) => ({
             ...data,
             problems: problemsArray,
+            highlights: JSON.stringify(validHighlights),
         }));
 
         createForm.post(`${prefix}/admin/products`, {
@@ -212,11 +236,13 @@ export default function ProductsIndex({
         const problemsArray = editForm.data.problems
             ? editForm.data.problems.split(',').map((s) => s.trim()).filter(Boolean)
             : [];
+        const validHighlights = editForm.data.highlights.filter((h) => h.title.trim().length > 0);
 
         editForm.transform((data) => ({
             ...data,
             _method: 'PUT',
             problems: problemsArray,
+            highlights: JSON.stringify(validHighlights),
         }));
 
         editForm.post(`${prefix}/admin/products/${editingProduct.id}`, {
@@ -583,6 +609,115 @@ export default function ProductsIndex({
                             />
                         </div>
 
+                        {/* Dynamic Product Highlights */}
+                        <div className="space-y-2.5 rounded-xl border border-neutral-200 bg-neutral-50/70 p-3.5 dark:border-neutral-700 dark:bg-neutral-800/40">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
+                                        <Sparkles className="size-3.5 text-amber-500" />
+                                        <span>Product Highlights (পণ্যের বিশেষত্ব / আইকন)</span>
+                                    </Label>
+                                    <p className="text-[11px] text-neutral-500">
+                                        প্রোডাক্ট ডিটেইলস পেজের গ্যালারির নিচে বিশেষ হাইলাইটস হিসেবে প্রদর্শিত হবে
+                                    </p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                        createForm.setData('highlights', [
+                                            ...createForm.data.highlights,
+                                            { title: '', image: HIGHLIGHT_PRESETS[0].url },
+                                        ])
+                                    }
+                                    className="h-7 text-xs flex items-center gap-1"
+                                >
+                                    <Plus className="size-3.5" />
+                                    <span>Add Highlight</span>
+                                </Button>
+                            </div>
+
+                            {createForm.data.highlights.length === 0 ? (
+                                <p className="text-xs text-neutral-400 italic py-2 text-center">
+                                    No highlights added. Click "+ Add Highlight" to add key features.
+                                </p>
+                            ) : (
+                                <div className="space-y-2 mt-2">
+                                    {createForm.data.highlights.map((hl, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2 rounded-lg bg-white border border-neutral-200 dark:bg-neutral-800 dark:border-neutral-700 shadow-2xs"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className="shrink-0 size-8 rounded-lg bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center overflow-hidden">
+                                                    {hl.image ? (
+                                                        <img src={hl.image} alt="" className="size-6 object-contain" />
+                                                    ) : (
+                                                        <Sparkles className="size-4 text-neutral-400" />
+                                                    )}
+                                                </div>
+
+                                                <select
+                                                    value={HIGHLIGHT_PRESETS.some((p) => p.url === hl.image) ? hl.image : 'custom'}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        const updated = [...createForm.data.highlights];
+                                                        updated[idx] = { ...updated[idx], image: val === 'custom' ? '' : val };
+                                                        createForm.setData('highlights', updated);
+                                                    }}
+                                                    className="h-8 text-xs rounded-md border border-neutral-300 bg-white px-2 dark:border-neutral-600 dark:bg-neutral-700 shrink-0"
+                                                >
+                                                    {HIGHLIGHT_PRESETS.map((preset) => (
+                                                        <option key={preset.id} value={preset.url}>
+                                                            {preset.label}
+                                                        </option>
+                                                    ))}
+                                                    <option value="custom">🔗 Custom URL...</option>
+                                                </select>
+                                            </div>
+
+                                            <Input
+                                                placeholder="Highlight Title (e.g. Daily cleansing, Gentle exfoliation)"
+                                                value={hl.title}
+                                                onChange={(e) => {
+                                                    const updated = [...createForm.data.highlights];
+                                                    updated[idx] = { ...updated[idx], title: e.target.value };
+                                                    createForm.setData('highlights', updated);
+                                                }}
+                                                className="h-8 text-xs flex-1"
+                                            />
+
+                                            {!HIGHLIGHT_PRESETS.some((p) => p.url === hl.image) && (
+                                                <Input
+                                                    placeholder="Custom Icon/Image URL"
+                                                    value={hl.image}
+                                                    onChange={(e) => {
+                                                        const updated = [...createForm.data.highlights];
+                                                        updated[idx] = { ...updated[idx], image: e.target.value };
+                                                        createForm.setData('highlights', updated);
+                                                    }}
+                                                    className="h-8 text-xs sm:w-44"
+                                                />
+                                            )}
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const updated = createForm.data.highlights.filter((_, i) => i !== idx);
+                                                    createForm.setData('highlights', updated);
+                                                }}
+                                                className="self-center p-1.5 text-neutral-400 hover:text-red-500 rounded transition"
+                                                title="Remove highlight"
+                                            >
+                                                <Trash2 className="size-3.5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="p-desc">Product Description & Formula Details</Label>
@@ -779,6 +914,115 @@ export default function ProductsIndex({
                                 value={editForm.data.problems}
                                 onChange={(e) => editForm.setData('problems', e.target.value)}
                             />
+                        </div>
+
+                        {/* Dynamic Product Highlights */}
+                        <div className="space-y-2.5 rounded-xl border border-neutral-200 bg-neutral-50/70 p-3.5 dark:border-neutral-700 dark:bg-neutral-800/40">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <Label className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
+                                        <Sparkles className="size-3.5 text-amber-500" />
+                                        <span>Product Highlights (পণ্যের বিশেষত্ব / আইকন)</span>
+                                    </Label>
+                                    <p className="text-[11px] text-neutral-500">
+                                        প্রোডাক্ট ডিটেইলস পেজের গ্যালারির নিচে বিশেষ হাইলাইটস হিসেবে প্রদর্শিত হবে
+                                    </p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                        editForm.setData('highlights', [
+                                            ...editForm.data.highlights,
+                                            { title: '', image: HIGHLIGHT_PRESETS[0].url },
+                                        ])
+                                    }
+                                    className="h-7 text-xs flex items-center gap-1"
+                                >
+                                    <Plus className="size-3.5" />
+                                    <span>Add Highlight</span>
+                                </Button>
+                            </div>
+
+                            {editForm.data.highlights.length === 0 ? (
+                                <p className="text-xs text-neutral-400 italic py-2 text-center">
+                                    No highlights added. Click "+ Add Highlight" to add key features.
+                                </p>
+                            ) : (
+                                <div className="space-y-2 mt-2">
+                                    {editForm.data.highlights.map((hl, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2 rounded-lg bg-white border border-neutral-200 dark:bg-neutral-800 dark:border-neutral-700 shadow-2xs"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className="shrink-0 size-8 rounded-lg bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center overflow-hidden">
+                                                    {hl.image ? (
+                                                        <img src={hl.image} alt="" className="size-6 object-contain" />
+                                                    ) : (
+                                                        <Sparkles className="size-4 text-neutral-400" />
+                                                    )}
+                                                </div>
+
+                                                <select
+                                                    value={HIGHLIGHT_PRESETS.some((p) => p.url === hl.image) ? hl.image : 'custom'}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        const updated = [...editForm.data.highlights];
+                                                        updated[idx] = { ...updated[idx], image: val === 'custom' ? '' : val };
+                                                        editForm.setData('highlights', updated);
+                                                    }}
+                                                    className="h-8 text-xs rounded-md border border-neutral-300 bg-white px-2 dark:border-neutral-600 dark:bg-neutral-700 shrink-0"
+                                                >
+                                                    {HIGHLIGHT_PRESETS.map((preset) => (
+                                                        <option key={preset.id} value={preset.url}>
+                                                            {preset.label}
+                                                        </option>
+                                                    ))}
+                                                    <option value="custom">🔗 Custom URL...</option>
+                                                </select>
+                                            </div>
+
+                                            <Input
+                                                placeholder="Highlight Title (e.g. Daily cleansing, Gentle exfoliation)"
+                                                value={hl.title}
+                                                onChange={(e) => {
+                                                    const updated = [...editForm.data.highlights];
+                                                    updated[idx] = { ...updated[idx], title: e.target.value };
+                                                    editForm.setData('highlights', updated);
+                                                }}
+                                                className="h-8 text-xs flex-1"
+                                            />
+
+                                            {!HIGHLIGHT_PRESETS.some((p) => p.url === hl.image) && (
+                                                <Input
+                                                    placeholder="Custom Icon/Image URL"
+                                                    value={hl.image}
+                                                    onChange={(e) => {
+                                                        const updated = [...editForm.data.highlights];
+                                                        updated[idx] = { ...updated[idx], image: e.target.value };
+                                                        editForm.setData('highlights', updated);
+                                                    }}
+                                                    className="h-8 text-xs sm:w-44"
+                                                />
+                                            )}
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const updated = editForm.data.highlights.filter((_, i) => i !== idx);
+                                                    editForm.setData('highlights', updated);
+                                                }}
+                                                className="self-center p-1.5 text-neutral-400 hover:text-red-500 rounded transition"
+                                                title="Remove highlight"
+                                            >
+                                                <Trash2 className="size-3.5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <div className="space-y-1.5">

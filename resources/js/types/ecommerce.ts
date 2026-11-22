@@ -210,6 +210,7 @@ export type LandingPage = {
     countdown_hours: number;
     headline: string | null;
     subheadline: string | null;
+    description: string | null;
     hero_description: string | null;
     video_url: string | null;
     banner_image: string | null;

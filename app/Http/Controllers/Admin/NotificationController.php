@@ -230,7 +230,9 @@ class NotificationController extends Controller
      */
     public function destroy(Request $request, string $id): RedirectResponse|JsonResponse
     {
-        $notification = $request->user()->notifications()->where('id', $id)->first();
+        $user = $request->user();
+        $notification = $user->notifications()->where('id', $id)->first()
+            ?? \Illuminate\Notifications\DatabaseNotification::where('id', $id)->first();
 
         if ($notification) {
             $notification->delete();
@@ -239,7 +241,7 @@ class NotificationController extends Controller
         if (! $request->header('X-Inertia') && $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
-                'unread_count' => $request->user()->unreadNotifications()->count(),
+                'unread_count' => $user->unreadNotifications()->count(),
             ]);
         }
 
@@ -247,19 +249,28 @@ class NotificationController extends Controller
     }
 
     /**
-     * Clear all read notifications.
+     * Clear all notifications (or read only if scope=read).
      */
     public function clearAll(Request $request): RedirectResponse|JsonResponse
     {
-        $request->user()->readNotifications()->delete();
+        $user = $request->user();
+        $scope = $request->input('scope', 'all');
+
+        if ($scope === 'read') {
+            $user->readNotifications()->delete();
+            $message = 'All read notifications cleared.';
+        } else {
+            $user->notifications()->delete();
+            $message = 'All notifications cleared.';
+        }
 
         if (! $request->header('X-Inertia') && $request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
-                'unread_count' => $request->user()->unreadNotifications()->count(),
+                'unread_count' => $user->unreadNotifications()->count(),
             ]);
         }
 
-        return back()->with('success', 'All read notifications cleared.');
+        return back()->with('success', $message);
     }
 }

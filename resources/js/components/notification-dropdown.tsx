@@ -337,6 +337,7 @@ export function NotificationDropdown() {
         e.stopPropagation();
         const itemToDelete = items.find((n) => n.id === id);
         setItems((prev) => prev.filter((n) => n.id !== id));
+        knownIdsRef.current.delete(id);
         if (itemToDelete && !itemToDelete.read) {
             setUnreadCount((c) => Math.max(0, c - 1));
         }
@@ -344,6 +345,7 @@ export function NotificationDropdown() {
         router.delete(`/admin/notifications/${id}`, {
             preserveScroll: true,
             preserveState: true,
+            only: ['adminNotifications'],
         });
     };
 

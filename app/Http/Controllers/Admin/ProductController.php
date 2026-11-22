@@ -74,7 +74,7 @@ class ProductController extends Controller
             'existing_gallery' => ['nullable', 'array'],
             'description' => ['nullable', 'string'],
             'problems' => ['nullable', 'array'],
-            'highlights' => ['nullable', 'array'],
+            'highlights' => ['nullable'],
             'is_active' => ['boolean'],
             'is_featured' => ['boolean'],
         ]);
@@ -126,6 +126,20 @@ class ProductController extends Controller
         $validated['gallery'] = $gallery;
         unset($validated['image_file'], $validated['gallery_files'], $validated['existing_gallery']);
 
+        if ($request->has('highlights')) {
+            $rawHighlights = $request->input('highlights');
+            if (is_string($rawHighlights)) {
+                $rawHighlights = json_decode($rawHighlights, true) ?? [];
+            }
+            if (is_array($rawHighlights)) {
+                $validated['highlights'] = array_values(array_filter($rawHighlights, function ($h) {
+                    return is_array($h) && (!empty(trim((string) ($h['title'] ?? ''))) || !empty(trim((string) ($h['image'] ?? ''))));
+                }));
+            } else {
+                $validated['highlights'] = [];
+            }
+        }
+
         Product::create($validated);
 
         return back()->with('success', 'Product created successfully.');
@@ -152,7 +166,7 @@ class ProductController extends Controller
             'existing_gallery' => ['nullable', 'array'],
             'description' => ['nullable', 'string'],
             'problems' => ['nullable', 'array'],
-            'highlights' => ['nullable', 'array'],
+            'highlights' => ['nullable'],
             'is_active' => ['boolean'],
             'is_featured' => ['boolean'],
         ]);
@@ -198,6 +212,20 @@ class ProductController extends Controller
         }
 
         unset($validated['image_file'], $validated['gallery_files'], $validated['existing_gallery']);
+
+        if ($request->has('highlights')) {
+            $rawHighlights = $request->input('highlights');
+            if (is_string($rawHighlights)) {
+                $rawHighlights = json_decode($rawHighlights, true) ?? [];
+            }
+            if (is_array($rawHighlights)) {
+                $validated['highlights'] = array_values(array_filter($rawHighlights, function ($h) {
+                    return is_array($h) && (!empty(trim((string) ($h['title'] ?? ''))) || !empty(trim((string) ($h['image'] ?? ''))));
+                }));
+            } else {
+                $validated['highlights'] = [];
+            }
+        }
 
         $product->update($validated);
 
