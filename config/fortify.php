@@ -161,7 +161,7 @@ return [
     */
 
     'features' => [
-        Features::registration(),
+        // Features::registration(), // Disabled: Admin & Staff registration from outside is disabled. Accounts are created via Admin Panel (/admin/users).
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([

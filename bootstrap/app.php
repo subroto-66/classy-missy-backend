@@ -31,6 +31,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\EnsureHasPermission::class,
             'strict.rate' => \App\Http\Middleware\StrictIpRateLimit::class,
         ]);
+
+        $middleware->prependToPriorityList(
+            before: \Illuminate\Routing\Middleware\ThrottleRequests::class,
+            prepend: \App\Http\Middleware\StrictIpRateLimit::class,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -57,18 +57,6 @@ export function AppSidebarHeader({
 
             {/* Right: Quick Actions, Live Storefront & User Profile */}
             <div className="flex items-center gap-2">
-                {/* View Live Storefront */}
-                <a
-                    href="http://localhost:5173"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#5d596c] hover:text-primary hover:bg-primary/10 transition-colors dark:text-[#cfcde4] dark:hover:bg-[#353952]"
-                    title="Open Live Storefront"
-                >
-                    <Globe className="size-3.5 text-primary" />
-                    <span>Live Store</span>
-                    <ExternalLink className="size-3 text-[#a5a3ae]" />
-                </a>
 
                 {/* Direct Store Settings Link */}
                 <Link

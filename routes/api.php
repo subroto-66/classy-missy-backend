@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['strict.rate:10,1,30,login'])->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/check-email', [AuthController::class, 'checkEmail']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/verify-code', [AuthController::class, 'verifyCode']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);

@@ -34,6 +34,9 @@ Route::middleware(['strict.rate:10,1,30,login', 'web'])->group(function () {
         ->name('two-factor.login.store');
 });
 
+// Outside public registration for admin panel is disabled
+Route::redirect('/register', '/login')->name('register');
+
 Route::inertia('/', 'welcome')->name('home');
 
 // Authenticated Admin Area (Clean direct single-tenant URLs)

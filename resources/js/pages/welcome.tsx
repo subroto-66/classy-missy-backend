@@ -4,7 +4,7 @@ import AppLogo from '@/components/app-logo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { login, register } from '@/routes';
+import { login } from '@/routes';
 
 export default function Welcome() {
     const page = usePage();
@@ -28,31 +28,15 @@ export default function Welcome() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Button variant="ghost" size="sm" asChild>
-                                <a
-                                    href="https://eclectic-kleicha-c2a33e.netlify.app/"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="flex items-center gap-1.5 text-xs text-neutral-600 dark:text-neutral-300"
-                                >
-                                    <span>Storefront</span>
-                                    <ExternalLink className="size-3.5" />
-                                </a>
-                            </Button>
 
                             {auth?.user ? (
                                 <Button size="sm" asChild className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white">
                                     <Link href={dashboardUrl}>Enter Admin Dashboard</Link>
                                 </Button>
                             ) : (
-                                <div className="flex items-center gap-2">
-                                    <Button variant="outline" size="sm" asChild>
-                                        <Link href={login()}>Log in</Link>
-                                    </Button>
-                                    <Button size="sm" asChild className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white">
-                                        <Link href={register()}>Register</Link>
-                                    </Button>
-                                </div>
+                                <Button size="sm" asChild className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white">
+                                    <Link href={login()}>Log in</Link>
+                                </Button>
                             )}
                         </div>
                     </div>
@@ -61,41 +45,6 @@ export default function Welcome() {
                 {/* Hero Section */}
                 <main className="flex-1 flex items-center justify-center py-12 px-6">
                     <div className="w-full max-w-4xl space-y-10">
-                        <div className="text-center space-y-4">
-                            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">
-                                <Sparkles className="size-3.5" /> Luxury Skincare & Beauty E-Commerce
-                            </div>
-                            <h1 className="text-4xl font-extrabold tracking-tight text-neutral-900 sm:text-5xl dark:text-neutral-100">
-                                Classy Missy Admin Portal
-                            </h1>
-                            <p className="mx-auto max-w-2xl text-base text-neutral-600 dark:text-neutral-400">
-                                Full-featured Laravel & React admin dashboard equipped with dynamic Role Management, catalog control, stock monitoring, orders dispatch, and customer relations.
-                            </p>
-
-                            <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-                                {auth?.user ? (
-                                    <Button size="lg" asChild className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white px-8">
-                                        <Link href={dashboardUrl}>Launch Admin Dashboard</Link>
-                                    </Button>
-                                ) : (
-                                    <Button size="lg" asChild className="bg-primary hover:bg-[var(--primary-hover)] shadow-[0_2px_4px_rgba(var(--primary-rgb),0.4)] text-white px-8">
-                                        <Link href={login()}>Sign In to Dashboard</Link>
-                                    </Button>
-                                )}
-
-                                <Button size="lg" variant="outline" asChild>
-                                    <a
-                                        href="https://eclectic-kleicha-c2a33e.netlify.app/"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="flex items-center gap-2"
-                                    >
-                                        <span>Preview Next.js Storefront</span>
-                                        <ExternalLink className="size-4" />
-                                    </a>
-                                </Button>
-                            </div>
-                        </div>
 
                         {/* Demo Accounts Card */}
                         <Card className="border-neutral-200 shadow-md bg-white dark:border-neutral-800 dark:bg-neutral-900">
@@ -143,7 +92,7 @@ export default function Welcome() {
 
                 {/* Footer */}
                 <footer className="w-full border-t border-neutral-200 py-6 text-center text-xs text-neutral-500 dark:border-neutral-800">
-                    Classy Missy Beauty E-Commerce Admin System • Built with Laravel 13, Inertia.js & React 19
+                    Storefront E-Commerce System • All Copy Right Reserved by SanMo
                 </footer>
             </div>
         </>

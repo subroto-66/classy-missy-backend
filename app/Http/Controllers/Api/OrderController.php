@@ -94,10 +94,23 @@ class OrderController extends Controller
             'notes' => 'nullable|string|max:500',
             'discount' => 'nullable|numeric|min:0',
             'shipping_fee' => 'nullable|numeric|min:0',
+            'source' => 'nullable|string|max:50',
+            'is_landing_page' => 'nullable|boolean',
         ]);
 
-        return DB::transaction(function () use ($request) {
-            $user = $request->user() ?: auth('sanctum')->user();
+        $user = $request->user() ?: auth('sanctum')->user();
+        $isLandingPage = $request->boolean('is_landing_page')
+            || $request->input('source') === 'landing_page';
+
+        // Guest ordering is strictly allowed only on landing pages
+        if (!$user && !$isLandingPage) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Please login to your account to place an order from the cart. Guest checkout is only allowed on promotional landing pages.',
+            ], 401);
+        }
+
+        return DB::transaction(function () use ($request, $user) {
 
             $customerPhone = trim($request->customer_phone ?: ($user?->phone ?: '01700000000'));
             $cleanPhone = preg_replace('/\D/', '', $customerPhone) ?: '01700000000';

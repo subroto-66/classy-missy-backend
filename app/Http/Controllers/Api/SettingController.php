@@ -13,12 +13,24 @@ class SettingController extends Controller
      */
     public function index(): JsonResponse
     {
+        $frontendLogo = Setting::get('frontend_logo');
+        if (!$frontendLogo || $frontendLogo === '/logo.svg') {
+            $adminLogo = Setting::get('admin_logo');
+            if ($adminLogo && $adminLogo !== '/logo.svg') {
+                $frontendLogo = $adminLogo;
+            } else {
+                $frontendLogo = $frontendLogo ?: '/logo.svg';
+            }
+        }
+
+        $frontendLogoDark = Setting::get('frontend_logo_dark') ?: Setting::get('admin_logo_dark');
+
         return response()->json([
-            'frontend_logo' => Setting::get('frontend_logo', '/logo.svg'),
-            'frontend_logo_dark' => Setting::get('frontend_logo_dark', null),
+            'frontend_logo' => $frontendLogo,
+            'frontend_logo_dark' => $frontendLogoDark,
             'favicon' => Setting::get('favicon', '/favicon.svg'),
             'primary_color' => Setting::get('primary_color', '#171717'),
-            'site_title' => Setting::get('site_title', 'Classy Missy'),
+            'site_title' => Setting::get('site_title') ?: Setting::get('admin_title', 'Classy Missy'),
             'site_tagline' => Setting::get('site_tagline', "Women's Fashion & Lifestyle"),
             'meta_title' => Setting::get('meta_title', 'Classy Missy - Trendy Women\'s Fashion & Online Boutique'),
             'meta_description' => Setting::get('meta_description', 'Discover chic and trendy women\'s fashion, luxury clothing, and premium dresses at Classy Missy. Exclusive collection with fast delivery across Bangladesh.'),

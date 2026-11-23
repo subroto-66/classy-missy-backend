@@ -64,6 +64,7 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
+            'canRegister' => Features::enabled(Features::registration()),
             'status' => $request->session()->get('status'),
             'teamInvitation' => $this->teamInvitation($request),
         ]));
@@ -81,9 +82,11 @@ class FortifyServiceProvider extends ServiceProvider
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::registerView(fn (Request $request) => Inertia::render('auth/register', [
-            'teamInvitation' => $this->teamInvitation($request),
-        ]));
+        if (Features::enabled(Features::registration())) {
+            Fortify::registerView(fn (Request $request) => Inertia::render('auth/register', [
+                'teamInvitation' => $this->teamInvitation($request),
+            ]));
+        }
 
         Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
 

@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -21,13 +22,34 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
+            'email' => [
+                'required',
+                'string',
+                'email:rfc,filter',
+                'max:255',
+                'unique:users,email',
+            ],
+            'phone' => 'nullable|string|max:30',
+            'password' => [
+                'required',
+                'string',
+                Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
+        ], [
+            'email.required' => 'Email address is required.',
+            'email.email' => 'Please provide a valid email address (e.g., name@example.com).',
+            'email.unique' => 'This email address is already registered. Please login or use a different email.',
         ]);
+
+        $phone = !empty($validated['phone']) ? trim($validated['phone']) : null;
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => strtolower(trim($validated['email'])),
+            'phone' => $phone,
             'password' => Hash::make($validated['password']),
             'is_active' => true,
         ]);
@@ -37,12 +59,18 @@ class AuthController extends Controller
             ['email' => $user->email],
             [
                 'name' => $user->name,
+                'phone' => $phone,
                 'user_id' => $user->id,
                 'status' => 'active',
             ]
         );
         if (!$customer->user_id) {
-            $customer->update(['user_id' => $user->id]);
+            $customer->update([
+                'user_id' => $user->id,
+                'phone' => $customer->phone ?: $phone,
+            ]);
+        } elseif ($phone && !$customer->phone) {
+            $customer->update(['phone' => $phone]);
         }
 
         $token = $user->createToken('auth-token')->plainTextToken;
@@ -54,17 +82,42 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone,
                 'role' => $user->role ? $user->role->slug : 'customer',
                 'token' => $token,
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'phone' => $user->phone,
                     'role' => $user->role ? $user->role->slug : 'customer',
                 ],
             ],
             'token' => $token,
         ], 201);
+    }
+
+    /**
+     * Check if an email is available or already registered.
+     */
+    public function checkEmail(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'string', 'email:rfc,filter'],
+        ], [
+            'email.required' => 'Email address is required.',
+            'email.email' => 'Please provide a valid email address (e.g., name@example.com).',
+        ]);
+
+        $exists = User::where('email', strtolower(trim($request->email)))->exists();
+
+        return response()->json([
+            'status' => 'success',
+            'available' => !$exists,
+            'message' => $exists
+                ? 'This email address is already registered. Please login or use a different email.'
+                : 'Email is available.',
+        ]);
     }
 
     /**
@@ -227,7 +280,14 @@ class AuthController extends Controller
 
         $request->validate([
             'current_password' => 'required|string',
-            'new_password' => 'required|string|min:6',
+            'new_password' => [
+                'required',
+                'string',
+                Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
         ]);
 
         if (!Hash::check($request->current_password, $user->password)) {
@@ -334,7 +394,14 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'resetToken' => 'required|string',
-            'newPassword' => 'required|string|min:6',
+            'newPassword' => [
+                'required',
+                'string',
+                Password::min(8)
+                    ->mixedCase()
+                    ->numbers()
+                    ->symbols(),
+            ],
         ]);
 
         $email = strtolower(trim($request->email));
