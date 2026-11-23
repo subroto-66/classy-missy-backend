@@ -22,12 +22,14 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Public Authentication
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/verify-code', [AuthController::class, 'verifyCode']);
-Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+// Public Authentication (Strict Rate Limit: 10 attempts per min per IP, exceeding blocks for 30 mins)
+Route::middleware(['strict.rate:10,1,30,login'])->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/verify-code', [AuthController::class, 'verifyCode']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+});
 
 // Catalog & Content
 Route::get('/products', [ProductController::class, 'index']);

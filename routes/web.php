@@ -19,6 +19,21 @@ use App\Http\Middleware\EnsureTeamMembership;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Rate-limited Web / Admin / Role Authentication endpoints
+Route::middleware(['strict.rate:10,1,30,login', 'web'])->group(function () {
+    Route::post('/login', [\Laravel\Fortify\Http\Controllers\AuthenticatedSessionController::class, 'store'])
+        ->middleware(['guest:'.config('fortify.guard'), 'throttle:login'])
+        ->name('login.store');
+
+    Route::post('/passkeys/login', [\Laravel\Passkeys\Http\Controllers\PasskeyLoginController::class, 'store'])
+        ->middleware(['guest:'.config('fortify.guard'), 'throttle:passkeys'])
+        ->name('passkey.login');
+
+    Route::post('/two-factor-challenge', [\Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController::class, 'store'])
+        ->middleware(['guest:'.config('fortify.guard'), 'throttle:two-factor'])
+        ->name('two-factor.login.store');
+});
+
 Route::inertia('/', 'welcome')->name('home');
 
 // Authenticated Admin Area (Clean direct single-tenant URLs)
