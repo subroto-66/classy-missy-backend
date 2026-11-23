@@ -128,10 +128,13 @@ export default function SlidersIndex({ sliders, filters = {} }: Props) {
         editForm.transform((data) => ({
             ...data,
             _method: 'PUT',
-        })).post(`/admin/sliders/${editingSlider.id}`, {
+        }));
+
+        editForm.post(`/admin/sliders/${editingSlider.id}`, {
             forceFormData: true,
             onSuccess: () => {
                 setEditingSlider(null);
+                editForm.reset();
             },
         });
     };

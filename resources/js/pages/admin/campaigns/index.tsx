@@ -172,10 +172,13 @@ export default function CampaignsIndex({ campaigns, products = [], filters = {} 
         editForm.transform((data) => ({
             ...data,
             _method: 'PUT',
-        })).post(`/admin/campaigns/${editingCampaign.id}`, {
+        }));
+
+        editForm.post(`/admin/campaigns/${editingCampaign.id}`, {
             forceFormData: true,
             onSuccess: () => {
                 setEditingCampaign(null);
+                editForm.reset();
             },
         });
     };
