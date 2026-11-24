@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Str;
 
 class ProductResource extends JsonResource
 {
@@ -44,6 +45,10 @@ class ProductResource extends JsonResource
             'images' => $gallery,
             'gallery' => $gallery,
             'description' => $this->description,
+            'meta_title' => $this->meta_title ?: "{$this->name} | Classy Missy",
+            'meta_description' => $this->meta_description ?: Str::limit(strip_tags((string) ($this->description ?: "Buy {$this->name} online from Classy Missy. 100% authentic with fast home delivery in Bangladesh.")), 160),
+            'meta_keywords' => $this->meta_keywords ?: implode(', ', array_filter([$this->name, $this->brand ? (is_object($this->brand) ? $this->brand->name : $this->brand) : null, $this->category ? (is_object($this->category) ? $this->category->name : $this->category) : null, 'beauty', 'skincare', 'Classy Missy'])),
+            'meta_og_image' => $this->image,
             'is_active' => (bool) $this->is_active,
             'is_featured' => (bool) $this->is_featured,
             'created_at' => $this->created_at?->toIso8601String(),

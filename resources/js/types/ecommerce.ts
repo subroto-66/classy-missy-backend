@@ -38,6 +38,9 @@ export type Category = {
     slug: string;
     image: string | null;
     description: string | null;
+    meta_title?: string | null;
+    meta_description?: string | null;
+    meta_keywords?: string | null;
     is_active: boolean;
     order: number;
     products_count?: number;
@@ -76,6 +79,9 @@ export type Product = {
     image: string | null;
     gallery: string[] | null;
     description: string | null;
+    meta_title?: string | null;
+    meta_description?: string | null;
+    meta_keywords?: string | null;
     is_active: boolean;
     is_featured: boolean;
     brand?: Brand | null;
