@@ -61,6 +61,7 @@ Route::post('/coupons/apply', [CouponController::class, 'apply']);
 
 // Orders / Checkout (Supports both guest checkout & authenticated checkout)
 Route::match(['get', 'post'], '/orders/track', [OrderController::class, 'track']);
+Route::post('/orders/send-otp', [OrderController::class, 'sendOtp']);
 Route::post('/orders', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'index']);
 Route::get('/orders/{order}', [OrderController::class, 'show']);

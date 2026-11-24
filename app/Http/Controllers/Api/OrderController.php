@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -78,6 +79,40 @@ class OrderController extends Controller
     }
 
     /**
+     * Send OTP to customer mobile number for order verification.
+     */
+    public function sendOtp(Request $request): JsonResponse
+    {
+        $request->validate([
+            'phone' => 'required|string|min:6|max:30',
+        ], [
+            'phone.required' => 'অনুগ্রহ করে মোবাইল নম্বর লিখুন।',
+        ]);
+
+        $phone = trim((string) $request->phone);
+        $cleanPhone = preg_replace('/\D/', '', $phone);
+
+        if (strlen($cleanPhone) < 11) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'অনুগ্রহ করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)।',
+            ], 422);
+        }
+
+        $defaultOtp = '123456';
+        Cache::put("order_otp_{$cleanPhone}", $defaultOtp, now()->addMinutes(10));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'আপনার মোবাইল নম্বরে ৬-ডিজিটের ভেরিফিকেশন কোড পাঠানো হয়েছে। (Default OTP: 123456)',
+            'data' => [
+                'phone' => $phone,
+                'otp' => $defaultOtp,
+            ],
+        ]);
+    }
+
+    /**
      * Store a newly created order (checkout).
      */
     public function store(Request $request): JsonResponse
@@ -85,7 +120,7 @@ class OrderController extends Controller
         $request->validate([
             'customer_name' => 'required|string|max:150',
             'customer_email' => 'nullable|email|max:150',
-            'customer_phone' => 'nullable|string|max:30',
+            'customer_phone' => 'required|string|max:30',
             'shipping_address' => 'nullable|string|max:500',
             'city' => 'nullable|string|max:100',
             'postal_code' => 'nullable|string|max:20',
@@ -96,7 +131,20 @@ class OrderController extends Controller
             'shipping_fee' => 'nullable|numeric|min:0',
             'source' => 'nullable|string|max:50',
             'is_landing_page' => 'nullable|boolean',
+            'otp' => 'required|string',
+        ], [
+            'customer_phone.required' => 'অনুগ্রহ করে মোবাইল নম্বর দিন।',
+            'otp.required' => 'অর্ডার নিশ্চিত করতে OTP কোডটি লিখুন (Default OTP: 123456)।',
         ]);
+
+        $defaultOtp = '123456';
+        $inputOtp = trim((string) $request->input('otp'));
+        if ($inputOtp !== $defaultOtp) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'ভুল OTP কোড! সঠিক কোডটি দিন (Default OTP: 123456)।',
+            ], 422);
+        }
 
         $user = $request->user() ?: auth('sanctum')->user();
         $isLandingPage = $request->boolean('is_landing_page')
