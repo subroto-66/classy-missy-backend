@@ -306,4 +306,213 @@ class OrderController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Track an order publicly by order number and optional phone/email verification.
+     */
+    public function track(Request $request): JsonResponse
+    {
+        $orderNumber = trim((string) $request->input('order_number', $request->input('order', '')));
+        $orderNumber = ltrim($orderNumber, '#');
+
+        if (empty($orderNumber)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Please provide an order number to track.',
+            ], 422);
+        }
+
+        $order = Order::with('items')
+            ->where('order_number', $orderNumber)
+            ->orWhere('id', $orderNumber)
+            ->first();
+
+        if (!$order) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No order found matching the provided order number. Please verify your order number and try again.',
+            ], 404);
+        }
+
+        // Optional phone verification
+        $inputPhone = trim((string) $request->input('phone', ''));
+        if ($inputPhone !== '') {
+            $normalizedInputPhone = $this->normalizePhone($inputPhone);
+            $normalizedOrderPhone = $this->normalizePhone($order->customer_phone);
+
+            if (!empty($normalizedInputPhone) && !empty($normalizedOrderPhone)) {
+                if (!str_contains($normalizedOrderPhone, $normalizedInputPhone) &&
+                    !str_contains($normalizedInputPhone, $normalizedOrderPhone)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'The phone number provided does not match this order record.',
+                    ], 422);
+                }
+            }
+        }
+
+        // Optional email verification
+        $inputEmail = trim((string) $request->input('email', ''));
+        if ($inputEmail !== '') {
+            if (strtolower($inputEmail) !== strtolower((string) $order->customer_email)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The email address provided does not match this order record.',
+                ], 422);
+            }
+        }
+
+        $rawStatus = strtolower((string) ($order->status ?? 'pending'));
+        $isCancelled = in_array($rawStatus, ['cancelled', 'canceled']);
+
+        $stepMap = [
+            'pending' => 1,
+            'confirmed' => 2,
+            'processing' => 2,
+            'shipped' => 3,
+            'delivered' => 4,
+        ];
+        $currentStep = $isCancelled ? 0 : ($stepMap[$rawStatus] ?? 1);
+
+        $placedDate = $order->placed_at?->format('M d, Y h:i A') ?? $order->created_at?->format('M d, Y h:i A');
+        $updatedDate = $order->updated_at?->format('M d, Y h:i A');
+
+        $timeline = [
+            [
+                'step' => 1,
+                'key' => 'placed',
+                'title' => 'Order Placed',
+                'description' => 'Your order has been placed and received by our system.',
+                'date' => $placedDate,
+                'completed' => $currentStep >= 1 && !$isCancelled,
+                'current' => $currentStep === 1 && !$isCancelled,
+            ],
+            [
+                'step' => 2,
+                'key' => 'processing',
+                'title' => 'Processing & Packed',
+                'description' => 'Your products are being quality-checked and packed for shipment.',
+                'date' => $currentStep >= 2 ? $updatedDate : null,
+                'completed' => $currentStep >= 2 && !$isCancelled,
+                'current' => $currentStep === 2 && !$isCancelled,
+            ],
+            [
+                'step' => 3,
+                'key' => 'shipped',
+                'title' => 'Shipped / In Transit',
+                'description' => 'Package handed over to our courier partner and is on the way.',
+                'date' => $currentStep >= 3 ? $updatedDate : null,
+                'completed' => $currentStep >= 3 && !$isCancelled,
+                'current' => $currentStep === 3 && !$isCancelled,
+            ],
+            [
+                'step' => 4,
+                'key' => 'delivered',
+                'title' => 'Delivered',
+                'description' => 'Package has been delivered successfully.',
+                'date' => $currentStep >= 4 ? $updatedDate : null,
+                'completed' => $currentStep >= 4 && !$isCancelled,
+                'current' => $currentStep === 4 && !$isCancelled,
+            ],
+        ];
+
+        // Mask phone and email for public privacy unless verified with matching phone/email or authenticated owner
+        $user = $request->user() ?: auth('sanctum')->user();
+        $isOwner = $user && (
+            ($order->customer && $order->customer->user_id === $user->id) ||
+            strtolower((string) $order->customer_email) === strtolower((string) $user->email)
+        );
+        $isVerified = $isOwner || ($inputPhone !== '') || ($inputEmail !== '');
+
+        $displayPhone = $isVerified ? $order->customer_phone : $this->maskPhone($order->customer_phone);
+        $displayEmail = $isVerified ? $order->customer_email : $this->maskEmail($order->customer_email);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'order_number' => $order->order_number,
+                'status' => $rawStatus,
+                'status_label' => ucfirst($rawStatus),
+                'current_step' => $currentStep,
+                'is_cancelled' => $isCancelled,
+                'placed_at' => $placedDate,
+                'updated_at' => $updatedDate,
+                'estimated_delivery' => '2-3 Business Days',
+                'timeline' => $timeline,
+                'customer' => [
+                    'name' => $order->customer_name,
+                    'phone' => $displayPhone,
+                    'email' => $displayEmail,
+                    'shipping_address' => $order->shipping_address,
+                    'city' => $order->city,
+                    'postal_code' => $order->postal_code,
+                    'country' => $order->country ?? 'Bangladesh',
+                ],
+                'payment' => [
+                    'method' => ucwords(str_replace('_', ' ', $order->payment_method ?? 'cash_on_delivery')),
+                    'status' => ucfirst($order->payment_status ?? 'unpaid'),
+                    'subtotal' => (float) $order->subtotal,
+                    'shipping_fee' => (float) $order->shipping_fee,
+                    'discount' => (float) $order->discount,
+                    'total' => (float) $order->total_amount,
+                ],
+                'items' => $order->items->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'product_id' => $item->product_id,
+                        'name' => $item->product_name,
+                        'image' => $item->product_image,
+                        'price' => (float) $item->price,
+                        'quantity' => (int) $item->quantity,
+                        'total' => (float) $item->total,
+                    ];
+                }),
+                'notes' => $order->notes,
+            ],
+        ]);
+    }
+
+    /**
+     * Normalize phone numbers for loose matching.
+     */
+    protected function normalizePhone(?string $phone): string
+    {
+        if (!$phone) {
+            return '';
+        }
+        $cleaned = preg_replace('/[^0-9]/', '', $phone);
+        if (str_starts_with($cleaned, '880')) {
+            $cleaned = substr($cleaned, 2);
+        }
+        return $cleaned;
+    }
+
+    /**
+     * Mask phone number for public display.
+     */
+    protected function maskPhone(?string $phone): string
+    {
+        if (!$phone) {
+            return '';
+        }
+        $len = strlen($phone);
+        if ($len <= 5) {
+            return $phone;
+        }
+        return substr($phone, 0, 3) . str_repeat('*', max(3, $len - 6)) . substr($phone, -3);
+    }
+
+    /**
+     * Mask email address for public display.
+     */
+    protected function maskEmail(?string $email): string
+    {
+        if (!$email || !str_contains($email, '@')) {
+            return $email ?? '';
+        }
+        [$user, $domain] = explode('@', $email, 2);
+        $userLen = strlen($user);
+        $maskedUser = $userLen <= 2 ? $user[0] . '*' : substr($user, 0, 2) . str_repeat('*', max(2, $userLen - 2));
+        return $maskedUser . '@' . $domain;
+    }
 }
