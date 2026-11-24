@@ -27,6 +27,7 @@ test('guest users cannot place orders from standard cart without logging in', fu
         'shipping_address' => 'Mirpur, Dhaka',
         'city' => 'Dhaka',
         'payment_method' => 'cash_on_delivery',
+        'otp' => '123456',
         'items' => [
             [
                 'id' => $product->id,
@@ -52,6 +53,7 @@ test('guest users can place orders from promotional landing pages without loggin
         'shipping_address' => 'Uttara, Dhaka',
         'city' => 'Dhaka',
         'payment_method' => 'cash_on_delivery',
+        'otp' => '123456',
         'items' => [
             [
                 'id' => $product->id,
@@ -84,6 +86,7 @@ test('authenticated users can place orders from both cart and landing pages', fu
         'shipping_address' => 'Dhanmondi, Dhaka',
         'city' => 'Dhaka',
         'payment_method' => 'cash_on_delivery',
+        'otp' => '123456',
         'items' => [
             [
                 'id' => $product->id,
