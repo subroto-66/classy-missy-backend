@@ -31,6 +31,9 @@ class Product extends Model
         'image',
         'gallery',
         'description',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
         'is_active',
         'is_featured',
     ];

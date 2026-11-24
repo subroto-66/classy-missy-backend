@@ -89,6 +89,9 @@ export default function ProductsIndex({
         image_file: File | null;
         gallery_files: File[];
         description: string;
+        meta_title: string;
+        meta_description: string;
+        meta_keywords: string;
         problems: string;
         highlights: Array<{ title: string; image: string }>;
         is_active: boolean;
@@ -108,6 +111,9 @@ export default function ProductsIndex({
         image_file: null,
         gallery_files: [],
         description: '',
+        meta_title: '',
+        meta_description: '',
+        meta_keywords: '',
         problems: 'Sensitive skin, Radiance',
         highlights: [
             { title: 'Gentle exfoliation', image: HIGHLIGHT_PRESETS[0].url },
@@ -134,6 +140,9 @@ export default function ProductsIndex({
         existing_gallery: string[];
         gallery_files: File[];
         description: string;
+        meta_title: string;
+        meta_description: string;
+        meta_keywords: string;
         problems: string;
         highlights: Array<{ title: string; image: string }>;
         is_active: boolean;
@@ -155,6 +164,9 @@ export default function ProductsIndex({
         existing_gallery: [],
         gallery_files: [],
         description: '',
+        meta_title: '',
+        meta_description: '',
+        meta_keywords: '',
         problems: '',
         highlights: [],
         is_active: true,
@@ -198,6 +210,9 @@ export default function ProductsIndex({
             existing_gallery: Array.isArray(p.gallery) ? p.gallery : [],
             gallery_files: [],
             description: p.description || '',
+            meta_title: p.meta_title || '',
+            meta_description: p.meta_description || '',
+            meta_keywords: p.meta_keywords || '',
             problems: Array.isArray(p.problems) ? p.problems.join(', ') : '',
             highlights: Array.isArray(p.highlights) && p.highlights.length > 0
                 ? p.highlights.map((h) => ({ title: h.title || '', image: h.image || HIGHLIGHT_PRESETS[0].url }))
@@ -730,6 +745,52 @@ export default function ProductsIndex({
                             />
                         </div>
 
+                        {/* SEO & Meta Tags */}
+                        <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/40 p-4 space-y-3">
+                            <div>
+                                <h4 className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider">
+                                    SEO & Meta Information (Optional)
+                                </h4>
+                                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                                    Leave blank to automatically generate from product title and description.
+                                </p>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="p-meta-title" className="text-xs">Meta Title</Label>
+                                <Input
+                                    id="p-meta-title"
+                                    value={createForm.data.meta_title}
+                                    onChange={(e) => createForm.setData('meta_title', e.target.value)}
+                                    placeholder="e.g. Skin Perfecting 2% BHA Liquid Exfoliant | Classy Missy"
+                                    className="text-xs"
+                                />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="p-meta-desc" className="text-xs">Meta Description</Label>
+                                <textarea
+                                    id="p-meta-desc"
+                                    rows={2}
+                                    value={createForm.data.meta_description}
+                                    onChange={(e) => createForm.setData('meta_description', e.target.value)}
+                                    placeholder="Short SEO description for search engines and social share (150-160 characters)"
+                                    className="w-full rounded-md border border-neutral-200 dark:border-neutral-700 bg-background px-3 py-2 text-xs shadow-xs focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary"
+                                />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="p-meta-keywords" className="text-xs">Meta Keywords</Label>
+                                <Input
+                                    id="p-meta-keywords"
+                                    value={createForm.data.meta_keywords}
+                                    onChange={(e) => createForm.setData('meta_keywords', e.target.value)}
+                                    placeholder="e.g. exfoliant, salicylic acid, skincare, beauty"
+                                    className="text-xs"
+                                />
+                            </div>
+                        </div>
+
                         <div className="flex items-center gap-6 pt-1">
                             <label className="flex items-center gap-2 text-xs cursor-pointer">
                                 <input
@@ -1035,6 +1096,52 @@ export default function ProductsIndex({
                                 onChange={(val) => editForm.setData('description', val)}
                                 placeholder="Update formulation, benefits, and instructions..."
                             />
+                        </div>
+
+                        {/* SEO & Meta Tags */}
+                        <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/50 dark:bg-neutral-800/40 p-4 space-y-3">
+                            <div>
+                                <h4 className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 uppercase tracking-wider">
+                                    SEO & Meta Information (Optional)
+                                </h4>
+                                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
+                                    Leave blank to automatically generate from product title and description.
+                                </p>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="edit-p-meta-title" className="text-xs">Meta Title</Label>
+                                <Input
+                                    id="edit-p-meta-title"
+                                    value={editForm.data.meta_title}
+                                    onChange={(e) => editForm.setData('meta_title', e.target.value)}
+                                    placeholder="e.g. Skin Perfecting 2% BHA Liquid Exfoliant | Classy Missy"
+                                    className="text-xs"
+                                />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="edit-p-meta-desc" className="text-xs">Meta Description</Label>
+                                <textarea
+                                    id="edit-p-meta-desc"
+                                    rows={2}
+                                    value={editForm.data.meta_description}
+                                    onChange={(e) => editForm.setData('meta_description', e.target.value)}
+                                    placeholder="Short SEO description for search engines and social share (150-160 characters)"
+                                    className="w-full rounded-md border border-neutral-200 dark:border-neutral-700 bg-background px-3 py-2 text-xs shadow-xs focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary"
+                                />
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="edit-p-meta-keywords" className="text-xs">Meta Keywords</Label>
+                                <Input
+                                    id="edit-p-meta-keywords"
+                                    value={editForm.data.meta_keywords}
+                                    onChange={(e) => editForm.setData('meta_keywords', e.target.value)}
+                                    placeholder="e.g. exfoliant, salicylic acid, skincare, beauty"
+                                    className="text-xs"
+                                />
+                            </div>
                         </div>
 
                         <div className="flex items-center gap-6 pt-1">
