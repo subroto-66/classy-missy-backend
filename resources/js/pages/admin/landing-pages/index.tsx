@@ -39,6 +39,17 @@ type Props = {
     };
 };
 
+const getFrontendUrl = (path: string = '') => {
+    if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return `http://${hostname}:5174${path}`;
+        }
+        return `${window.location.origin}${path}`;
+    }
+    return `http://localhost:5174${path}`;
+};
+
 const defaultPackages: LandingPagePackage[] = [
     {
         id: 'pack_1',
@@ -72,6 +83,29 @@ const defaultPackages: LandingPagePackage[] = [
     },
 ];
 
+const defaultFaqs = [
+    {
+        q: 'পণ্য হাতে পাওয়ার পর মূল্য পরিশোধ করার সুবিধা (ক্যাশ অন ডেলিভারি) আছে কি?',
+        a: 'জি, সম্পূর্ণ ক্যাশ অন ডেলিভারি সুবিধা রয়েছে। ডেলিভারি ম্যানের কাছ থেকে পার্সেলটি গ্রহণ করে দেখে তারপর মূল্য পরিশোধ করবেন। কোনো অগ্রিম টাকা প্রদান করতে হবে না।',
+    },
+    {
+        q: 'ডেলিভারি পেতে কতদিন সময় লাগবে?',
+        a: 'ঢাকা সিটির ভেতরে ২৪ থেকে ৪৮ ঘণ্টার মধ্যে এবং ঢাকা সিটির বাইরে জেলা ও থানা পর্যায়ে সাধারণত ২ থেকে ৩ কার্যদিবসের মধ্যে হোম ডেলিভারি পৌঁছে দেওয়া হয়।',
+    },
+    {
+        q: 'পণ্যটি কি আসলেই ১০০% আসল ও মানসম্মত?',
+        a: 'আমাদের প্রতিটি পণ্য সরাসরি অফিশিয়াল ও নির্ভরযোগ্য উৎস থেকে সংগৃহীত। শতভাগ আসল ও গুণমান নিশ্চিত।',
+    },
+    {
+        q: 'পণ্যটি পছন্দ না হলে বা কোনো সমস্যা থাকলে কি রিটার্ন করা যাবে?',
+        a: 'হ্যাঁ, ডেলিভারি নেওয়ার সময় যদি পণ্যটিতে কোনো ঘাটতি বা অসঙ্গতি দেখতে পান তবে সাথে সাথে রিটার্ন করতে পারবেন অথবা আমাদের হটলাইনে জানালে ৭ দিনের মধ্যে রিটার্ন বা রিপ্লেসমেন্ট সুবিধা পাবেন।',
+    },
+    {
+        q: 'ফোনে বা হোয়াটসঅ্যাপে কিভাবে সরাসরি অর্ডার করতে পারি?',
+        a: 'আপনি যেকোনো সময় আমাদের হটলাইন নম্বরে কল করে অথবা WhatsApp নম্বরে আপনার নাম, ঠিকানা ও পছন্দের প্যাকেজ মেসেজ পাঠিয়ে সরাসরি অর্ডার কনফার্ম করতে পারেন।',
+    },
+];
+
 export default function LandingPagesIndex({ landingPages, products, filters = {} }: Props) {
     const pagesList = Array.isArray(landingPages) ? landingPages : (landingPages?.data || []);
     const totalPages = Array.isArray(landingPages) ? landingPages.length : (landingPages?.total ?? 0);
@@ -88,7 +122,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingPage, setEditingPage] = useState<LandingPage | null>(null);
     const [deletingPage, setDeletingPage] = useState<LandingPage | null>(null);
-    const [activeTab, setActiveTab] = useState<'general' | 'packages' | 'benefits' | 'content'>('general');
+    const [activeTab, setActiveTab] = useState<'general' | 'packages' | 'faqs' | 'benefits'>('general');
 
     // Form setup for Create
     const createForm = useForm({
@@ -111,6 +145,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
         packages: defaultPackages,
         delivery_inside_dhaka: 70,
         delivery_outside_dhaka: 130,
+        faqs: defaultFaqs,
         guarantee_text: 'ল্যাব টেস্টে ভেজাল প্রমাণিত হলে শতভাগ মানিব্যাক গ্যারান্টি!',
         is_active: true,
         is_default_for_product: true,
@@ -139,6 +174,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
         packages: defaultPackages,
         delivery_inside_dhaka: 70,
         delivery_outside_dhaka: 130,
+        faqs: defaultFaqs,
         guarantee_text: '',
         is_active: true,
         is_default_for_product: true,
@@ -170,6 +206,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
             packages: defaultPackages,
             delivery_inside_dhaka: 70,
             delivery_outside_dhaka: 130,
+            faqs: defaultFaqs,
             guarantee_text: 'ল্যাব টেস্টে ভেজাল প্রমাণিত হলে শতভাগ মানিব্যাক গ্যারান্টি!',
             is_active: true,
             is_default_for_product: true,
@@ -202,6 +239,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
             packages: page.packages?.length ? page.packages : defaultPackages,
             delivery_inside_dhaka: Number(page.delivery_inside_dhaka || 70),
             delivery_outside_dhaka: Number(page.delivery_outside_dhaka || 130),
+            faqs: page.faqs && page.faqs.length > 0 ? page.faqs : defaultFaqs,
             guarantee_text: page.guarantee_text || '',
             is_active: Boolean(page.is_active),
             is_default_for_product: Boolean(page.is_default_for_product),
@@ -382,7 +420,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
                                         <div className="flex items-center gap-1.5">
                                             {/* Preview Live Standalone Funnel */}
                                             <a
-                                                href={`http://localhost:5173/landing/${lp.slug}`}
+                                                href={getFrontendUrl(`/landing/${lp.slug}`)}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-2.5 py-1 text-xs font-semibold text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-300"
@@ -395,7 +433,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
 
                                             {/* Product view */}
                                             <a
-                                                href={`http://localhost:5173/product/${lp.slug}`}
+                                                href={getFrontendUrl(`/product/${lp.slug}`)}
                                                 target="_blank"
                                                 rel="noreferrer"
                                                 className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-2 py-1 text-[11px] text-neutral-500 hover:text-black dark:border-neutral-700"
@@ -473,6 +511,17 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
                         </button>
                         <button
                             type="button"
+                            onClick={() => setActiveTab('faqs')}
+                            className={`pb-2.5 px-3 border-b-2 transition ${
+                                activeTab === 'faqs'
+                                    ? 'border-amber-600 text-amber-700 dark:text-amber-400'
+                                    : 'border-transparent text-neutral-500 hover:text-black'
+                            }`}
+                        >
+                            3. FAQs (প্রশ্নোত্তর)
+                        </button>
+                        <button
+                            type="button"
                             onClick={() => setActiveTab('benefits')}
                             className={`pb-2.5 px-3 border-b-2 transition ${
                                 activeTab === 'benefits'
@@ -480,7 +529,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
                                     : 'border-transparent text-neutral-500 hover:text-black'
                             }`}
                         >
-                            3. Guarantee & SEO
+                            4. Guarantee & SEO
                         </button>
                     </div>
 
@@ -759,6 +808,91 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
                             </div>
                         )}
 
+                        {activeTab === 'faqs' && (
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between border-b border-neutral-100 pb-2 dark:border-neutral-800">
+                                    <div>
+                                        <h4 className="text-sm font-bold text-neutral-900 dark:text-neutral-100">
+                                            ল্যান্ডিং পেজের প্রশ্নোত্তর (FAQs)
+                                        </h4>
+                                        <p className="text-xs text-neutral-500">
+                                            গ্রাহকদের সাধারণ প্রশ্ন ও উত্তরের তালিকা তৈরি বা পরিবর্তন করুন
+                                        </p>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            const currentFaqs = createForm.data.faqs || [];
+                                            createForm.setData('faqs', [
+                                                ...currentFaqs,
+                                                { q: '', a: '' },
+                                            ]);
+                                        }}
+                                        className="h-8 gap-1 text-xs"
+                                    >
+                                        <Plus className="size-3.5" />
+                                        <span>নতুন FAQ যোগ করুন</span>
+                                    </Button>
+                                </div>
+
+                                {(!createForm.data.faqs || createForm.data.faqs.length === 0) ? (
+                                    <div className="rounded-xl border border-dashed border-neutral-300 p-8 text-center text-xs text-neutral-500 dark:border-neutral-700">
+                                        কোনো FAQ যোগ করা হয়নি। নতুন যোগ করতে উপরের বাটনে ক্লিক করুন।
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+                                        {createForm.data.faqs.map((faq, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="rounded-xl border border-neutral-200 bg-neutral-50/50 p-3.5 space-y-2 dark:border-neutral-700 dark:bg-neutral-800/40"
+                                            >
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300">
+                                                        প্রশ্ন #{idx + 1}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const copy = [...createForm.data.faqs];
+                                                            copy.splice(idx, 1);
+                                                            createForm.setData('faqs', copy);
+                                                        }}
+                                                        className="text-xs text-red-600 hover:text-red-700 font-semibold inline-flex items-center gap-1"
+                                                    >
+                                                        <Trash2 className="size-3" />
+                                                        <span>মুছে ফেলুন</span>
+                                                    </button>
+                                                </div>
+                                                <Input
+                                                    placeholder="যেমন: ক্যাশ অন ডেলিভারি সুবিধা আছে কি?"
+                                                    value={faq.q}
+                                                    onChange={(e) => {
+                                                        const copy = [...createForm.data.faqs];
+                                                        copy[idx].q = e.target.value;
+                                                        createForm.setData('faqs', copy);
+                                                    }}
+                                                    className="text-xs h-9 bg-white dark:bg-neutral-900"
+                                                />
+                                                <textarea
+                                                    rows={2}
+                                                    placeholder="প্রশ্নের বিস্তারিত উত্তর..."
+                                                    value={faq.a}
+                                                    onChange={(e) => {
+                                                        const copy = [...createForm.data.faqs];
+                                                        copy[idx].a = e.target.value;
+                                                        createForm.setData('faqs', copy);
+                                                    }}
+                                                    className="w-full text-xs rounded-lg border border-neutral-300 p-2.5 bg-white dark:bg-neutral-900 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {activeTab === 'benefits' && (
                             <div className="space-y-4">
                                 <div className="space-y-1.5">
@@ -859,6 +993,17 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
                         </button>
                         <button
                             type="button"
+                            onClick={() => setActiveTab('faqs')}
+                            className={`pb-2.5 px-3 border-b-2 transition ${
+                                activeTab === 'faqs'
+                                    ? 'border-amber-600 text-amber-700 dark:text-amber-400'
+                                    : 'border-transparent text-neutral-500 hover:text-black'
+                            }`}
+                        >
+                            3. FAQs (প্রশ্নোত্তর)
+                        </button>
+                        <button
+                            type="button"
                             onClick={() => setActiveTab('benefits')}
                             className={`pb-2.5 px-3 border-b-2 transition ${
                                 activeTab === 'benefits'
@@ -866,7 +1011,7 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
                                     : 'border-transparent text-neutral-500 hover:text-black'
                             }`}
                         >
-                            3. Guarantee & SEO
+                            4. Guarantee & SEO
                         </button>
                     </div>
 
@@ -1123,6 +1268,91 @@ export default function LandingPagesIndex({ landingPages, products, filters = {}
                                         />
                                     </div>
                                 </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'faqs' && (
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between border-b border-neutral-100 pb-2 dark:border-neutral-800">
+                                    <div>
+                                        <h4 className="text-sm font-bold text-neutral-900 dark:text-neutral-100">
+                                            ল্যান্ডিং পেজের প্রশ্নোত্তর (FAQs)
+                                        </h4>
+                                        <p className="text-xs text-neutral-500">
+                                            গ্রাহকদের সাধারণ প্রশ্ন ও উত্তরের তালিকা তৈরি বা পরিবর্তন করুন
+                                        </p>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            const currentFaqs = editForm.data.faqs || [];
+                                            editForm.setData('faqs', [
+                                                ...currentFaqs,
+                                                { q: '', a: '' },
+                                            ]);
+                                        }}
+                                        className="h-8 gap-1 text-xs"
+                                    >
+                                        <Plus className="size-3.5" />
+                                        <span>নতুন FAQ যোগ করুন</span>
+                                    </Button>
+                                </div>
+
+                                {(!editForm.data.faqs || editForm.data.faqs.length === 0) ? (
+                                    <div className="rounded-xl border border-dashed border-neutral-300 p-8 text-center text-xs text-neutral-500 dark:border-neutral-700">
+                                        কোনো FAQ যোগ করা হয়নি। নতুন যোগ করতে উপরের বাটনে ক্লিক করুন।
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+                                        {editForm.data.faqs.map((faq, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="rounded-xl border border-neutral-200 bg-neutral-50/50 p-3.5 space-y-2 dark:border-neutral-700 dark:bg-neutral-800/40"
+                                            >
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300">
+                                                        প্রশ্ন #{idx + 1}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const copy = [...editForm.data.faqs];
+                                                            copy.splice(idx, 1);
+                                                            editForm.setData('faqs', copy);
+                                                        }}
+                                                        className="text-xs text-red-600 hover:text-red-700 font-semibold inline-flex items-center gap-1"
+                                                    >
+                                                        <Trash2 className="size-3" />
+                                                        <span>মুছে ফেলুন</span>
+                                                    </button>
+                                                </div>
+                                                <Input
+                                                    placeholder="যেমন: ক্যাশ অন ডেলিভারি সুবিধা আছে কি?"
+                                                    value={faq.q}
+                                                    onChange={(e) => {
+                                                        const copy = [...editForm.data.faqs];
+                                                        copy[idx].q = e.target.value;
+                                                        editForm.setData('faqs', copy);
+                                                    }}
+                                                    className="text-xs h-9 bg-white dark:bg-neutral-900"
+                                                />
+                                                <textarea
+                                                    rows={2}
+                                                    placeholder="প্রশ্নের বিস্তারিত উত্তর..."
+                                                    value={faq.a}
+                                                    onChange={(e) => {
+                                                        const copy = [...editForm.data.faqs];
+                                                        copy[idx].a = e.target.value;
+                                                        editForm.setData('faqs', copy);
+                                                    }}
+                                                    className="w-full text-xs rounded-lg border border-neutral-300 p-2.5 bg-white dark:bg-neutral-900 dark:border-neutral-700 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
 
